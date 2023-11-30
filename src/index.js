@@ -15,9 +15,9 @@ const DB_LOCATION = process.env.DB_LOCATION || './blockchain.db';
 async function* getNextHash(db) {
   try {
     const sql = `
-        SELECT id, hash_to_verify, key, account, created_at 
+        SELECT block_id, hash_to_verify, key, account, created_at 
 		    FROM blocks 
-		    ORDER BY id DESC 
+		    ORDER BY block_id DESC 
 		    LIMIT 1;
       `;
     const row = await db.get(sql);
