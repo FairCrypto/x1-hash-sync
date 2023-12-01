@@ -59,7 +59,8 @@ let db;
   const wallet = new Wallet(process.env.PK, provider);
   const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
 
-  for await (const hashes of getNextHash(db)) {
+  const getHash = getNextHash(db);
+  for await (const hashes of getHash.next()) {
     try {
       log('hashes', hashes)
       const bytes = hashes
