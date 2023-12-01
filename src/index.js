@@ -59,7 +59,7 @@ let db;
     try {
       const {block_id, hash_to_verify, key, account} = hash;
       const [, type, v0, mtp, s64, hash64] = hash_to_verify.split('$');
-      log(type, v0, mtp, s64, hash64);
+      log(type, v0, mtp, 's=', s64, 'h=', hash64);
       assert.equal(type, 'argon2id');
       const v = v0.split('=')[1];
       assert.equal(v, '19');
