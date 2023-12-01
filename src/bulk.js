@@ -61,22 +61,30 @@ let db;
   for await (const hashes of getNextHash(db)) {
     try {
       log('hashes', hashes)
-      const bytes = hashes.map(hash => {
-        const {hash_to_verify, key} = hash;
-        const [, type, v0, mtp, s64, hash64] = hash_to_verify.split('$');
-        assert.equal(type, 'argon2id');
-        const v = v0.split('=')[1];
-        assert.equal(v, '19');
-        const [m0, t0, p0] = mtp.split(',');
-        const m = m0.split('=')[1];
-        const t = t0.split('=')[1];
-        const c = p0.split('=')[1];
-        const s = Buffer.from(s64, 'base64');
-        const k = Buffer.from(key, 'hex');
-        return solidityPacked(
-          ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
-          [c, m, t, v, k, s]);
-      });
+      const bytes = hashes
+        .map(hash => {
+          const {hash_to_verify, key} = hash;
+          const [, type, v0, mtp, s64, hash64] = hash_to_verify.split('$');
+          assert.equal(type, 'argon2id');
+          const v = v0.split('=')[1];
+          assert.equal(v, '19');
+          const [m0, t0, p0] = mtp.split(',');
+          const m = m0.split('=')[1];
+          const t = t0.split('=')[1];
+          const c = p0.split('=')[1];
+          const s = Buffer.from(s64, 'base64');
+          const k = Buffer.from(key, 'hex');
+          if (k.length !== 32) { // skip invalid keys
+            return null;
+          }
+          return solidityPacked(
+            ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
+            [c, m, t, v, k, s]);
+        }).filter(Boolean);
+      if (!bytes.length) {
+        log('no bytes to send; skipping');
+        continue;
+      }
       const res = await contract.bulkStoreRecordBytesInc(wallet.address, bytes);
       log(res.value)
       // await new Promise(resolve => setTimeout(resolve, 1000));
