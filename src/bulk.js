@@ -16,17 +16,17 @@ const DB_LOCATION = process.env.DB_LOCATION || './blockchain.db';
 const RPC_URL = process.env.RPC_URL || 'https://x1-testnet.infrafc.org';
 const NETWORK_ID = process.env.NETWORK_ID || '204005';
 
-async function* getNextHash(db, offset = 0) {
-  let rows;
-  for await (const off of offset) {
-    console.log('off', off);
+async function* getNextHash(db) {
+  let offset = 0;
+  let rows = [];
+  do {
     try {
       const sql = `
         SELECT block_id, hash_to_verify, key, account, created_at 
 		    FROM blocks 
 		    ORDER BY block_id ASC 
-		    LIMIT 60;
-		    OFFSET ${off};
+		    LIMIT 60
+		    OFFSET ${offset};
       `;
       rows = await db.all(sql);
       yield rows;
@@ -34,7 +34,8 @@ async function* getNextHash(db, offset = 0) {
       log(e)
       yield [];
     }
-  }
+    offset += 60;
+  } while (rows.length > 0)
 }
 
 let db;
@@ -59,8 +60,7 @@ let db;
   const wallet = new Wallet(process.env.PK, provider);
   const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
 
-  let offset = 0;
-  for await (const hashes of getNextHash(db, offset)) {
+  for await (const hashes of getNextHash(db)) {
     try {
       log('hashes', hashes)
       const bytes = hashes
@@ -84,14 +84,12 @@ let db;
             [c, m, t, v, k, s]);
         }).filter(Boolean);
       if (!bytes.length) {
-        offset += 60;
-        log('no bytes to send; skipping', offset);
+        log('no bytes to send; skipping');
         await new Promise(resolve => setTimeout(resolve, 1000));
         continue;
       }
       const res = await contract.bulkStoreRecordBytesInc(wallet.address, bytes);
       log(res.value)
-      offset += 60;
       // await new Promise(resolve => setTimeout(resolve, 1000));
     } catch (e) {
       log(e);
