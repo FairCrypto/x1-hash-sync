@@ -40,6 +40,8 @@ let db;
   const abi = BlockStorage.abi;
 
   log('using DB', DB_LOCATION)
+  log('using RPC', RPC_URL)
+  log('using network', NETWORK_ID)
 
   db = await open({
     filename: path.resolve(DB_LOCATION),
