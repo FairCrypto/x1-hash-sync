@@ -6,7 +6,6 @@ import { open } from 'sqlite'
 import debug from "debug";
 import assert from "assert";
 import BlockStorage from "../abi/BlockStorage.json" assert { type: "json" };
-import RxDatabase from "./rx/index.ts";
 import rx, {distinctUntilChanged} from "rxjs";
 
 dotenv.config();
@@ -38,6 +37,7 @@ async function* getNextHash(db) {
 }
 
 let db;
+let subs
 
 // entry point
 (async () => {
@@ -59,18 +59,16 @@ let db;
   const wallet = new Wallet(process.env.PK, provider);
   const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
 
-  rx.from(getNextHash(db))
+  subs = rx.from(getNextHash(db))
     .pipe(distinctUntilChanged((a, b) => a.block_id === b.block_id))
     .subscribe(async (hash) => {
       console.log('hash', hash);
     });
 
-  while (true) {
-    await new Promise(resolve => setTimeout(resolve, 100))
-  }
-
 })()
   .catch(log)
-  .finally(() => {;
+  .finally(() => {
+    db.close();
+    subs.unsubscribe();
     log('db closed')
   })
