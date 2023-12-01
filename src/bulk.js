@@ -16,8 +16,7 @@ const DB_LOCATION = process.env.DB_LOCATION || './blockchain.db';
 const RPC_URL = process.env.RPC_URL || 'https://x1-testnet.infrafc.org';
 const NETWORK_ID = process.env.NETWORK_ID || '204005';
 
-async function* getNextHash(db) {
-  let offset = 0;
+async function* getNextHash(db, offset = 0) {
   let rows = [];
   do {
     try {
@@ -30,7 +29,6 @@ async function* getNextHash(db) {
       `;
       rows = await db.all(sql);
       yield rows;
-      offset += 60;
     } catch (e) {
       log(e)
       yield [];
@@ -60,7 +58,8 @@ let db;
   const wallet = new Wallet(process.env.PK, provider);
   const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
 
-  for await (const hashes of getNextHash(db)) {
+  let offset = 0;
+  for await (const hashes of getNextHash(db, offset)) {
     try {
       log('hashes', hashes)
       const bytes = hashes
@@ -90,6 +89,7 @@ let db;
       }
       const res = await contract.bulkStoreRecordBytesInc(wallet.address, bytes);
       log(res.value)
+      offset += 60;
       // await new Promise(resolve => setTimeout(resolve, 1000));
     } catch (e) {
       log(e);
