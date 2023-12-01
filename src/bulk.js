@@ -19,7 +19,7 @@ const NETWORK_ID = process.env.NETWORK_ID || '204005';
 async function* getNextHash(db) {
   let offset = 0;
   let rows = [];
-  while (rows.length > 0) {
+  do {
     try {
       const sql = `
         SELECT block_id, hash_to_verify, key, account, created_at 
@@ -34,7 +34,7 @@ async function* getNextHash(db) {
     } catch (e) {
       log(e)
     }
-  }
+  } while (rows.length > 0)
 }
 
 let db;
