@@ -65,6 +65,18 @@ let subs
       console.log('hash', hash);
     });
 
+  process.on('SIGTERM', () => {
+    log('interrupt signal received');
+    db.close();
+    subs.unsubscribe();
+    log('done')
+  });
+
+  // wait until interrupted
+  while (true) {
+    await new Promise(resolve => setTimeout(resolve, 10))
+  }
+
 })()
   .catch(log)
   .finally(() => {
