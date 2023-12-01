@@ -29,7 +29,7 @@ async function* getNextHash(db) {
 		    OFFSET ${offset};
       `;
       rows = await db.all(sql);
-      yield rows;
+      yield await Promise.resolve(rows);
       offset += 60;
     } catch (e) {
       log(e)
