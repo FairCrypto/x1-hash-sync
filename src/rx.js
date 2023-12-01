@@ -7,7 +7,7 @@ import debug from "debug";
 import assert from "assert";
 import BlockStorage from "../abi/BlockStorage.json" assert { type: "json" };
 import RxDatabase from "./rx/index.ts";
-import rx from "rxjs";
+import rx, {distinctUntilChanged} from "rxjs";
 
 dotenv.config();
 
@@ -30,6 +30,7 @@ async function* getNextHash(db) {
     try {
       const row = await db.get(sql);
       yield row;
+      await new Promise(resolve => setTimeout(resolve, 200))
     } catch (e) {
       log(e)
     }
@@ -59,6 +60,7 @@ let db;
   const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
 
   rx.from(getNextHash(db))
+    .pipe(distinctUntilChanged((a, b) => a.block_id === b.block_id))
     .subscribe(async (hash) => {
       console.log('hash', hash);
     });
