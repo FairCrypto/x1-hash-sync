@@ -57,7 +57,8 @@ let subs
 
   const provider = new JsonRpcProvider(RPC_URL, Number(NETWORK_ID));
   const wallet = new Wallet(process.env.PK, provider);
-  const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
+  const nonceManager = new NonceManager(wallet);
+  const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, nonceManager);
 
   subs = rx.from(getNextHash(db))
     .pipe(distinctUntilChanged((a, b) => a.block_id === b.block_id))
