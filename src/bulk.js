@@ -77,7 +77,7 @@ let db;
           const c = p0.split('=')[1];
           const s = Buffer.from(s64, 'base64');
           const k = Buffer.from(key, 'hex');
-          if (k.length !== 32) { // skip invalid keys
+          if (k.length > 32) { // skip invalid keys
             return null;
           }
           return solidityPacked(
