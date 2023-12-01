@@ -90,7 +90,7 @@ let db;
         continue;
       }
       const res = await contract.bulkStoreRecordBytesInc(wallet.address, bytes);
-      log(res.value)
+      log(bytes.length, res.value)
       // await new Promise(resolve => setTimeout(resolve, 1000));
     } catch (e) {
       log(e);
