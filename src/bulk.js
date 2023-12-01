@@ -15,9 +15,10 @@ const log = debug('hash-sync')
 const DB_LOCATION = process.env.DB_LOCATION || './blockchain.db';
 const RPC_URL = process.env.RPC_URL || 'https://x1-testnet.infrafc.org';
 const NETWORK_ID = process.env.NETWORK_ID || '204005';
+const STARTING_HASH_ID = process.env.STARTING_HASH_ID || '0';
 
-async function* getNextHash(db) {
-  let offset = 0;
+async function* getNextHash(db, offset = 0) {
+  let off = offset;
   let rows = [];
   do {
     try {
@@ -60,7 +61,7 @@ let db;
   const wallet = new Wallet(process.env.PK, provider);
   const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
 
-  for await (const hashes of getNextHash(db)) {
+  for await (const hashes of getNextHash(db, Number(STARTING_HASH_ID))) {
     try {
       // log('hashes', hashes.length)
       const bytes = hashes
