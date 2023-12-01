@@ -83,6 +83,7 @@ let db;
             [c, m, t, v, k, s]);
         }).filter(Boolean);
       if (!bytes.length) {
+        offset += 60;
         log('no bytes to send; skipping');
         await new Promise(resolve => setTimeout(resolve, 1000));
         continue;
