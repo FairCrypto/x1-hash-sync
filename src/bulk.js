@@ -62,7 +62,7 @@ let db;
 
   for await (const hashes of getNextHash(db)) {
     try {
-      log('hashes', hashes.length)
+      // log('hashes', hashes.length)
       const bytes = hashes
         .map(hash => {
           const {hash_to_verify, key} = hash;
@@ -84,7 +84,7 @@ let db;
             [c, m, t, v, k, s]);
         }).filter(Boolean);
       if (!bytes.length) {
-        log('no conforming hashes; skipping');
+        log(hashes[0]?.block_id, 'no conforming hashes; skipping');
         // await new Promise(resolve => setTimeout(resolve, 1000));
         continue;
       }
