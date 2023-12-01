@@ -69,12 +69,12 @@ let db;
       const c = p0.split('=')[1];
       const s = Buffer.from(s64, 'base64');
       const k = Buffer.from(key, 'hex');
-      log(block_id, m, t, v, k, s)
+      // log(block_id, m, t, v, k, s)
       const bytes = solidityPacked(
         ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
         [c, m, t, v, k, s]);
       const res = await contract.storeNewRecordBytes(account, bytes);
-      log(res.value)
+      log(block_id, '->', res.value)
       await new Promise(resolve => setTimeout(resolve, 1000));
     } catch (e) {
       log(e);
