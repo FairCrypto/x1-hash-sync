@@ -28,7 +28,7 @@ async function* getNextHash(db) {
 		    LIMIT 60;
 		    OFFSET ${offset};
       `;
-      const rows = await db.all(sql);
+      rows = await db.all(sql);
       yield rows;
       offset += 60;
     } catch (e) {
