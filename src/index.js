@@ -54,7 +54,7 @@ async function* getNextHash(db) {
       log(hash);
       const {block_id, hash_to_verify, keyHax, account} = hash;
       const [, type, v, mtp, s64, hash64] = hash_to_verify.split('$');
-      assert.equal(type, 'argon2di');
+      assert.equal(type, 'argon2id');
       assert.equal(v, '19');
       const [m0, t0, p0] = mtp.split(',');
       const m = m0.split('=')[1];
