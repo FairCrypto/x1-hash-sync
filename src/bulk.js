@@ -17,15 +17,16 @@ const RPC_URL = process.env.RPC_URL || 'https://x1-testnet.infrafc.org';
 const NETWORK_ID = process.env.NETWORK_ID || '204005';
 
 async function* getNextHash(db, offset = 0) {
-  let rows = [];
-  do {
+  let rows;
+  for await (const off of offset) {
+    console.log('off', off);
     try {
       const sql = `
         SELECT block_id, hash_to_verify, key, account, created_at 
 		    FROM blocks 
 		    ORDER BY block_id ASC 
 		    LIMIT 60;
-		    OFFSET ${offset};
+		    OFFSET ${off};
       `;
       rows = await db.all(sql);
       yield rows;
@@ -33,7 +34,7 @@ async function* getNextHash(db, offset = 0) {
       log(e)
       yield [];
     }
-  } while (rows.length > 0)
+  }
 }
 
 let db;
