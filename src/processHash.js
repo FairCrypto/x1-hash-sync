@@ -1,5 +1,8 @@
 import assert from "assert";
 import {solidityPacked} from "ethers";
+import debug from "debug";
+
+const log = debug('hash-sync')
 
 export const processHash = async (hash, contract) => {
   try {
