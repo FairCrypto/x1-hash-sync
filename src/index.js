@@ -51,7 +51,7 @@ async function* getNextHash(db) {
 
   for await (const hash of getNextHash(db)) {
     try {
-      const {block_id, hash_to_verify, keyHax, account} = hash;
+      const {block_id, hash_to_verify, key, account} = hash;
       const [, type, v, mtp, s64, hash64] = hash_to_verify.split('$');
       log(type, v, mtp, s64, hash64);
       assert.equal(type, 'argon2id');
@@ -61,7 +61,7 @@ async function* getNextHash(db) {
       const t = t0.split('=')[1];
       // const p = p0.split('=')[1];
       const s = Buffer.from(s64, 'base64');
-      const k = Buffer.from(keyHax, 'hex');
+      const k = Buffer.from(key, 'hex');
       const bytes = solidityPacked(
         ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
         [block_id, m, t, v, k, s]);
