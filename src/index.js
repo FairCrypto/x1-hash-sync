@@ -61,7 +61,7 @@ async function* getNextHash(db) {
       const t = t0.split('=')[1];
       // const p = p0.split('=')[1];
       const s = Buffer.from(s64, 'base64');
-      const k = Buffer.from(key, 'hex');
+      const k = Buffer.from(`0x${key}`, 'hex');
       log(k.length, s.length)
       const bytes = solidityPacked(
         ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
