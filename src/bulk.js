@@ -29,10 +29,11 @@ async function* getNextHash(db) {
 		    OFFSET ${offset};
       `;
       rows = await db.all(sql);
-      yield await Promise.resolve(rows);
+      yield rows;
       offset += 60;
     } catch (e) {
       log(e)
+      yield [];
     }
   } while (rows.length > 0)
 }
@@ -59,8 +60,7 @@ let db;
   const wallet = new Wallet(process.env.PK, provider);
   const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
 
-  const getHash = getNextHash(db);
-  for await (const hashes of getHash.next()) {
+  for await (const hashes of getNextHash(db)) {
     try {
       log('hashes', hashes)
       const bytes = hashes
