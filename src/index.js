@@ -13,17 +13,19 @@ const log = debug('hash-sync')
 const DB_LOCATION = process.env.DB_LOCATION || './blockchain.db';
 
 async function* getNextHash(db) {
-  try {
-    const sql = `
+  while (true) {
+    try {
+      const sql = `
         SELECT block_id, hash_to_verify, key, account, created_at 
 		    FROM blocks 
 		    ORDER BY block_id DESC 
 		    LIMIT 1;
       `;
-    const row = await db.get(sql);
-    yield row;
-  } catch (e) {
-    log(e)
+      const row = await db.get(sql);
+      yield row;
+    } catch (e) {
+      log(e)
+    }
   }
 }
 
