@@ -31,13 +31,15 @@ async function* getNextHash(db) {
   }
 }
 
+let db;
+
 // entry point
 (async () => {
   const abi = BlockStorage.abi;
 
   log('using DB', DB_LOCATION)
 
-  const db = await open({
+  db = await open({
     filename: path.resolve(DB_LOCATION),
     driver: sqlite3.Database,
     mode: sqlite3.OPEN_READONLY
@@ -72,7 +74,13 @@ async function* getNextHash(db) {
       await new Promise(resolve => setTimeout(resolve, 1000));
     } catch (e) {
       log(e);
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
 
-})().catch(log)
+})()
+  .catch(log)
+  .finally(() => {
+    db.close();
+    log('db closed')
+  })
