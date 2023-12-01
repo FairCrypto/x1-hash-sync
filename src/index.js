@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import debug from "debug";
-import argon2 from 'argon2';
 import assert from "assert";
+import BlockStorage from "../abi/BlockStorage.json" assert { type: "json" };
 
 dotenv.config();
 
@@ -33,7 +33,7 @@ async function* getNextHash(db) {
 
 // entry point
 (async () => {
-  const abi = await import("abi/BlockStorage.json").then(data => data.abi);
+  const abi = BlockStorage.abi;
 
   log('using DB', DB_LOCATION)
 
