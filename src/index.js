@@ -52,20 +52,21 @@ async function* getNextHash(db) {
   for await (const hash of getNextHash(db)) {
     try {
       const {block_id, hash_to_verify, key, account} = hash;
-      const [, type, v, mtp, s64, hash64] = hash_to_verify.split('$');
-      log(type, v, mtp, s64, hash64);
+      const [, type, v0, mtp, s64, hash64] = hash_to_verify.split('$');
+      log(type, v0, mtp, s64, hash64);
       assert.equal(type, 'argon2id');
-      assert.equal(v, 'v=19');
+      const v = v0.split('=')[1];
+      assert.equal(v, '19');
       const [m0, t0, p0] = mtp.split(',');
       const m = m0.split('=')[1];
       const t = t0.split('=')[1];
-      // const p = p0.split('=')[1];
+      const c = p0.split('=')[1];
       const s = Buffer.from(s64, 'base64');
       const k = Buffer.from(key, 'hex');
-      log(k.length, s.length)
+      log(block_id, m, t, v, k, s)
       const bytes = solidityPacked(
         ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
-        [block_id, m, t, v, `${key}`, s]);
+        [c, m, t, v, k, s]);
       const res = await contract.storeNewRecordBytes(account, bytes);
       log(res.value)
       await new Promise(resolve => setTimeout(resolve, 1000));
