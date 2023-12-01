@@ -7,6 +7,7 @@ import debug from "debug";
 import assert from "assert";
 import BlockStorage from "../abi/BlockStorage.json" assert { type: "json" };
 import RxDatabase from "./rx/index.ts";
+import rx from "rxjs";
 
 dotenv.config();
 
@@ -45,16 +46,22 @@ let db;
   log('using RPC', RPC_URL)
   log('using network', NETWORK_ID)
 
-  const rxDb = new RxDatabase(path.resolve(DB_LOCATION),  sqlite3.OPEN_READONLY)
+  db = await open({
+    filename: path.resolve(DB_LOCATION),
+    driver: sqlite3.Database,
+    mode: sqlite3.OPEN_READONLY
+  });
 
-  log('rxDb open')
+  log('db open')
 
   const provider = new JsonRpcProvider(RPC_URL, Number(NETWORK_ID));
   const wallet = new Wallet(process.env.PK, provider);
   const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
 
-  rxDb.all(sql)
-    .subscribe(log)
+  rx.from(getNextHash(db))
+    .subscribe(async (hash) => {
+      console.log('hash', hash);
+    });
 
   while (true) {
     await new Promise(resolve => setTimeout(resolve, 100))
