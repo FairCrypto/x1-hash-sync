@@ -22,7 +22,8 @@ export const processHash = async (hash, contract) => {
     const bytes = solidityPacked(
       ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
       [c, m, t, v, k, s]);
-    const res = await contract.storeNewRecordBytes(account, bytes);
+    const gas = await contract.estimateGas.storeNewRecordBytes(account, bytes);
+    const res = await contract.storeNewRecordBytes(account, bytes, {gasLimit: gas * 110n / 100n});
     log(block_id, '->', res.value)
   } catch (e) {
     log(e)
