@@ -1,15 +1,17 @@
-import { Contract, Wallet, solidityPacked, JsonRpcProvider, NonceManager} from "ethers";
+import { Contract, Wallet, JsonRpcProvider, NonceManager} from "ethers";
 import path from "path";
 import dotenv from 'dotenv';
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import debug from "debug";
-import assert from "assert";
+// import assert from "assert";
 import BlockStorage from "../abi/BlockStorage.json" assert { type: "json" };
 import rx, {distinctUntilChanged} from "rxjs";
 import {processHash} from "./processHash.js";
 
-dotenv.config();
+const [,, ...args] = process.argv;
+
+dotenv.config({ path: args[0] || '.env' });
 
 debug.enable('*');
 
