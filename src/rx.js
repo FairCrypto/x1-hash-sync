@@ -32,7 +32,7 @@ async function* getNextHash(db) {
   let lastProcessed = 0;
   while (true) {
     try {
-      const row = await db.get(sql, lastProcessed);
+      const row = await db.get(sql, [lastProcessed]);
       lastProcessed = row.block_id;
       yield row;
       await new Promise(resolve => setTimeout(resolve, 50))
