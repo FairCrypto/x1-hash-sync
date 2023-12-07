@@ -24,7 +24,7 @@ const sql = `
         SELECT block_id, hash_to_verify, key, account, created_at 
 		    FROM blocks 
 		    ORDER BY block_id DESC 
-		    WHERE block_id > ?
+		    WHERE block_id > 0
 		    LIMIT 1;
       `;
 
