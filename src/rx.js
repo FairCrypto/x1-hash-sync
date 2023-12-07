@@ -23,8 +23,8 @@ const NETWORK_ID = process.env.NETWORK_ID || '204005';
 const sql = `
         SELECT block_id, hash_to_verify, key, account, created_at 
 		    FROM blocks 
+		    WHERE block_id > ?
 		    ORDER BY block_id DESC 
-		    WHERE block_id > 0
 		    LIMIT 1;
       `;
 
