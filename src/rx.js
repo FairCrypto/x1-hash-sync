@@ -34,10 +34,13 @@ async function* getNextHash(db) {
     try {
       const row = await db.get(sql, [lastProcessed]);
       if (row) {
+        if (row.block_id - lastProcessed > 1) {
+          console.log('skipped', row.block_id - 1)
+        }
         lastProcessed = row?.block_id;
         yield row;
       }
-      await new Promise(resolve => setTimeout(resolve, 50))
+      await new Promise(resolve => setTimeout(resolve, 10))
     } catch (e) {
       log(e)
     }
