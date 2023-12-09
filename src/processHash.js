@@ -17,15 +17,15 @@ export const processHash = async (hash, contract) => {
     const t = t0.split('=')[1];
     const c = p0.split('=')[1];
     const s = Buffer.from(s64, 'base64');
-    const k = Buffer.from(key, 'hex');
+    const k = Buffer.from(key, 'hex').slice(0, 32);
     // log(block_id, m, t, v, k, s)
     const bytes = solidityPacked(
       ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
       [c, m, t, v, k, s]);
     const gas = await contract.storeNewRecordBytes.estimateGas(account, bytes);
     const res = await contract.storeNewRecordBytes(account, bytes, {gasLimit: gas * 120n / 100n});
-    log(block_id, '->', res.value)
+    return [block_id, res?.value];
   } catch (e) {
-    log(e)
+    throw e;
   }
 }

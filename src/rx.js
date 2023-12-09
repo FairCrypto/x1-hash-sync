@@ -5,7 +5,7 @@ import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage.json" assert { type: "json" };
-import rx, { distinctUntilChanged, retry } from "rxjs";
+import rx, {delay, distinctUntilChanged, from, map, Observable, retry, retryWhen, take, tap} from "rxjs";
 import {processHash} from "./processHash.js";
 
 const [,, ...args] = process.argv;
@@ -17,6 +17,7 @@ debug.enable('*');
 const log = debug('hash-sync')
 const DB_LOCATION = process.env.DB_LOCATION || './blockchain.db';
 const RPC_URL = process.env.RPC_URL || 'https://x1-testnet.infrafc.org';
+// const RPC_URL = process.env.RPC_URL || 'http://localhost:8546';
 const NETWORK_ID = process.env.NETWORK_ID || '204005';
 const MAX_RETRIES = process.env.MAX_RETRIES || '20';
 
@@ -24,18 +25,18 @@ const sql = `
         SELECT block_id, hash_to_verify, key, account, created_at 
 		    FROM blocks 
 		    WHERE block_id > ?
-		    ORDER BY block_id DESC 
+		    ORDER BY id DESC 
 		    LIMIT 1;
       `;
 
 async function* getNextHash(db) {
-  let lastProcessed = 0;
+  let lastProcessed = 10000000000;
   while (true) {
     try {
       const row = await db.get(sql, [lastProcessed]);
       if (row) {
         if (row.block_id - lastProcessed > 1) {
-          log('skipped!', row.block_id - 1)
+           log('skipped!', row.block_id - 1)
         }
         lastProcessed = row?.block_id;
         yield row;
@@ -74,9 +75,28 @@ let subs;
   subs = rx.from(getNextHash(db))
     .pipe(
       distinctUntilChanged((a, b) => a.block_id === b.block_id),
-      retry({ maxRetryAttempts: Number(MAX_RETRIES), delay: 1_000 })
+      map(async hash => {
+        let res;
+        try {
+          res = await processHash(hash, contract)
+          return res
+        } catch (e) {
+          log(e)
+          return null
+        }
+      }),
+      // retry({ maxRetryAttempts: Number(MAX_RETRIES), delay: 1_000 })
+      retryWhen(errors =>
+      {
+        return errors.pipe(
+          tap(val => console.log('errs', errors)),
+          delay(1000), // You can adjust the delay between retries (in milliseconds)
+        )
+      })
     )
-    .subscribe(async hash => processHash(hash, contract));
+    .subscribe({
+      next: async (o) => log((await o)?.[0], '>', (await o)?.[1]),
+    });
 
   process.on('SIGTERM', () => {
     log('interrupt signal received');
