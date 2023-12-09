@@ -30,7 +30,7 @@ const sql = `
       `;
 
 async function* getNextHash(db) {
-  let lastProcessed = 10000000000;
+  let lastProcessed = 0;
   while (true) {
     try {
       const row = await db.get(sql, [lastProcessed]);
