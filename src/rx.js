@@ -4,9 +4,8 @@ import dotenv from 'dotenv';
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import debug from "debug";
-// import assert from "assert";
 import BlockStorage from "../abi/BlockStorage.json" assert { type: "json" };
-import rx, {distinctUntilChanged} from "rxjs";
+import rx, { distinctUntilChanged, retry } from "rxjs";
 import {processHash} from "./processHash.js";
 
 const [,, ...args] = process.argv;
@@ -19,6 +18,7 @@ const log = debug('hash-sync')
 const DB_LOCATION = process.env.DB_LOCATION || './blockchain.db';
 const RPC_URL = process.env.RPC_URL || 'https://x1-testnet.infrafc.org';
 const NETWORK_ID = process.env.NETWORK_ID || '204005';
+const MAX_RETRIES = process.env.MAX_RETRIES || '20';
 
 const sql = `
         SELECT block_id, hash_to_verify, key, account, created_at 
@@ -35,7 +35,7 @@ async function* getNextHash(db) {
       const row = await db.get(sql, [lastProcessed]);
       if (row) {
         if (row.block_id - lastProcessed > 1) {
-          console.log('skipped', row.block_id - 1)
+          log('skipped!', row.block_id - 1)
         }
         lastProcessed = row?.block_id;
         yield row;
@@ -48,7 +48,7 @@ async function* getNextHash(db) {
 }
 
 let db;
-let subs
+let subs;
 
 // entry point
 (async () => {
@@ -72,7 +72,10 @@ let subs
   const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, nonceManager);
 
   subs = rx.from(getNextHash(db))
-    .pipe(distinctUntilChanged((a, b) => a.block_id === b.block_id))
+    .pipe(
+      distinctUntilChanged((a, b) => a.block_id === b.block_id),
+      retry({ maxRetryAttempts: Number(MAX_RETRIES), delay: 1_000 })
+    )
     .subscribe(async hash => processHash(hash, contract));
 
   process.on('SIGTERM', () => {
