@@ -26,20 +26,24 @@ const sql = `
 		    FROM blocks 
 		    WHERE block_id > ?
 		    ORDER BY block_id DESC 
-		    LIMIT 1;
+		    LIMIT 30;
       `;
 
 async function* getNextHash(db) {
   let lastProcessed = 0;
   while (true) {
     try {
-      const row = await db.get(sql, [lastProcessed]);
-      if (row) {
-        if (row.block_id - lastProcessed > 1) {
-           log('skipped!', row.block_id - 1)
+      const rows = await db.all(sql, [lastProcessed]);
+      if (rows && Array.isArray(rows) && rows.length > 0) {
+        for (const row of rows) {
+          if (row.block_id - lastProcessed > 1) {
+            log('skipped!', row.block_id - 1)
+          }
+          if (row.block_id > lastProcessed) {
+            lastProcessed = row?.block_id;
+          }
+          yield row;
         }
-        lastProcessed = row?.block_id;
-        yield row;
       }
       await new Promise(resolve => setTimeout(resolve, 10))
     } catch (e) {
