@@ -26,7 +26,7 @@ const sql = `
 		    FROM blocks 
 		    WHERE block_id > ?
 		    ORDER BY block_id DESC 
-		    LIMIT 30;
+		    LIMIT 60;
       `;
 
 async function* getNextHash(db) {
