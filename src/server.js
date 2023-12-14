@@ -9,7 +9,7 @@ import {processHash} from "./processHash.js";
 const [,, ...args] = process.argv;
 
 dotenv.config({ path: args[0] || '.env' });
-debug.enable('*');
+debug.enable('*;-body-parser:*');
 
 const log = debug('hash-sync')
 const abi = BlockStorage.abi;
@@ -41,7 +41,7 @@ app.post('/process_hash', async (req, res) => {
   // Print the received JSON data
   log('RECV', req.body?.key);
   const txResult = await processHash(req.body, contract);
-  log('SEND', txResult);
+  if (txResult?.[1] === 0n) log('SEND', txResult?.[1]);
   // Respond with a simple message
   res.json({ status: 'accepted' });
   // res.json({ status: 'accepted' });

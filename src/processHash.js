@@ -28,7 +28,7 @@ export const processHash = async (hash, contract) => {
     const res = await contract.storeNewRecordBytes(accountNormalized, bytes, {gasLimit: gas * 120n / 100n});
     return [block_id, res?.value];
   } catch (e) {
-    log(e?.message);
+    log('ERR', e?.message);
     // throw e;
   }
 }
