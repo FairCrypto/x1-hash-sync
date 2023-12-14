@@ -31,6 +31,6 @@ const nonceManager = new NonceManager(wallet);
 const contract = new Contract(CONTRACT_ADDRESS, abi, nonceManager);
 
 const options = {json: true, port: Number(PORT)};
-const hashRecords = RxHR.post(`/process_hash`, options);
+const hashRecords = RxHR.post(`http://localhost:9997/process_hash`, options);
 
 hashRecords.subscribe(console.log);
