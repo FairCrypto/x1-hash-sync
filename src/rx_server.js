@@ -30,6 +30,7 @@ const wallet = new Wallet(process.env.PK, provider);
 const nonceManager = new NonceManager(wallet);
 const contract = new Contract(CONTRACT_ADDRESS, abi, nonceManager);
 
-const hashRecords = RxHR.post(`/process_hash`, {json: true});
+const options = {json: true, port: Number(PORT)};
+const hashRecords = RxHR.post(`/process_hash`, options);
 
 hashRecords.subscribe(console.log);
