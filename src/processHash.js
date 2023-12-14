@@ -2,7 +2,7 @@ import assert from "assert";
 import {solidityPacked} from "ethers";
 import debug from "debug";
 
-const log = debug('hash-sync', {colors: false});
+// const log = debug('hash-sync', {colors: false});
 
 export const processHash = async (hash, contract) => {
   try {
@@ -29,3 +29,4 @@ export const processHash = async (hash, contract) => {
     throw e;
   }
 }
+
