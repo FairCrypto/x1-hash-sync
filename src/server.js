@@ -9,7 +9,7 @@ import {processHash} from "./processHash.js";
 const [,, ...args] = process.argv;
 
 dotenv.config({ path: args[0] || '.env' });
-debug.enable('*;-body-parser:*');
+debug.enable('*,-body-parser:*');
 
 const log = debug('hash-sync')
 const abi = BlockStorage.abi;
