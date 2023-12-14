@@ -1,10 +1,14 @@
-import { RxHR } from '@akanass/rx-http-request';
+// import { RxHR } from '@akanass/rx-http-request';
+
+import * as http from "http";
+import * as rx from "rxjs";
 
 import dotenv from "dotenv";
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage.json";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
 import {processHash} from "./processHash.js";
+import {fromEvent} from "rxjs";
 
 const [,, ...args] = process.argv;
 
@@ -30,7 +34,28 @@ const wallet = new Wallet(process.env.PK, provider);
 const nonceManager = new NonceManager(wallet);
 const contract = new Contract(CONTRACT_ADDRESS, abi, nonceManager);
 
-const options = {json: true, port: Number(PORT)};
-const hashRecords = RxHR.post(`http://localhost:9997/process_hash`, options);
+const server = http.createServer();
 
-hashRecords.subscribe(console.log);
+fromEvent(server, 'request')
+  .subscribe(async (req, res) => {
+    if (req.method === 'POST' && req.url === '/process_hash') {
+      const body = await rx.fromEvent(req, 'data')
+        .pipe(rx.map((chunk) => chunk.toString()))
+        .pipe(rx.reduce((acc, chunk) => acc + chunk))
+        .toPromise();
+      const data = JSON.parse(body);
+      log(body)
+      // log('RECV', data?.key);
+      // const txResult = await processHash(data, contract);
+      // if (txResult?.[1] === 0n) log('SEND', txResult?.[1]);
+      // res.writeHead(200, {'Content-Type': 'application/json'});
+      // res.end(JSON.stringify({ status: 'accepted' }));
+    } else {
+      // res.writeHead(404, {'Content-Type': 'application/json'});
+      // res.end(JSON.stringify({ status: 'not found' }));
+    }
+  });
+
+server.listen(PORT, () => {
+  log(`Server is running on port ${PORT}`);
+});
