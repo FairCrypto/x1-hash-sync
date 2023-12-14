@@ -50,5 +50,5 @@ app.post('/process_hash', async (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-  log(`Server is running on port ${port}`);
+  log(`Server is running on port ${PORT}`);
 });
