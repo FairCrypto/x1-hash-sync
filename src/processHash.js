@@ -19,7 +19,7 @@ export const processHash = async (hash, contract) => {
     const s = Buffer.from(s64, 'base64');
     const k = Buffer.from(key, 'hex').slice(0, 32);
     const accountNormalized = getAddress(account);
-    log(account, m, t, v, k, s)
+    log(accountNormalized, m, t, v, k, s)
     const bytes = solidityPacked(
       ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
       [c, m, t, v, k, s]);
