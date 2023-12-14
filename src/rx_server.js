@@ -1,5 +1,5 @@
-import express from 'express';
-import bodyParser from 'body-parser';
+import { RxHR } from '@akanass/rx-http-request';
+
 import dotenv from "dotenv";
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage.json";
@@ -30,20 +30,6 @@ const wallet = new Wallet(process.env.PK, provider);
 const nonceManager = new NonceManager(wallet);
 const contract = new Contract(CONTRACT_ADDRESS, abi, nonceManager);
 
-const app = express();
+const hashRecords = RxHR.post(`/process_hash`, {json: true});
 
-// Use middleware to parse JSON requests
-app.use(bodyParser.json());
-
-// Define a route for handling POST requests
-app.post('/process_hash', async (req, res) => {
-  log('RECV', req.body?.key);
-  const txResult = await processHash(req.body, contract);
-  if (txResult?.[1] === 0n) log('SEND', txResult?.[1]);
-  res.json({ status: 'accepted' });
-});
-
-// Start the server
-app.listen(PORT, () => {
-  log(`Server is running on port ${PORT}`);
-});
+hashRecords.subscribe(console.log);

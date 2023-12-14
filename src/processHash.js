@@ -20,7 +20,6 @@ export const processHash = async (hash, contract) => {
     const k = Buffer.from(key, 'hex').slice(0, 32);
     const accountNormalized = getAddress(account);
     assert.ok(isAddress(accountNormalized), 'account is not valid: ' + accountNormalized);
-    log(accountNormalized, m, key)
     const bytes = solidityPacked(
       ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
       [c, m, t, v, k, s]);
