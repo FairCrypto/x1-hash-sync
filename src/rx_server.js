@@ -38,13 +38,14 @@ const server = http.createServer();
 
 fromEvent(server, 'request')
   .subscribe(async (req, res) => {
+    log(req.method, req.url);
     if (req.method === 'POST' && req.url === '/process_hash') {
       const body = await rx.fromEvent(req, 'data')
         .pipe(rx.map((chunk) => chunk.toString()))
         .pipe(rx.reduce((acc, chunk) => acc + chunk))
         .toPromise();
       const data = JSON.parse(body);
-      log(body)
+      log(data)
       // log('RECV', data?.key);
       // const txResult = await processHash(data, contract);
       // if (txResult?.[1] === 0n) log('SEND', txResult?.[1]);
