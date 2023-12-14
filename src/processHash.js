@@ -1,5 +1,5 @@
 import assert from "assert";
-import {solidityPacked, getAddress} from "ethers";
+import {solidityPacked, getAddress, isAddress} from "ethers";
 import debug from "debug";
 
 const log = debug('hash-sync', {colors: false});
@@ -19,6 +19,7 @@ export const processHash = async (hash, contract) => {
     const s = Buffer.from(s64, 'base64');
     const k = Buffer.from(key, 'hex').slice(0, 32);
     const accountNormalized = getAddress(account);
+    assert.ok(isAddress(accountNormalized), 'account is not valid: ' + accountNormalized);
     log(accountNormalized, m, key)
     const bytes = solidityPacked(
       ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
