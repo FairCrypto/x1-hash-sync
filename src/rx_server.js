@@ -57,6 +57,6 @@ fromEvent(server, 'request')
     }
   });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', 100, () => {
   log(`Server is running on port ${PORT}`);
 });
