@@ -19,15 +19,17 @@ const RPC_URL = process.env.RPC_URL || 'https://x1-testnet.infrafc.org';
 const NETWORK_ID = process.env.NETWORK_ID || '204005';
 // const MAX_RETRIES = process.env.MAX_RETRIES || '20';
 const PORT = process.env.PORT || 9997;
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 
 log('using RPC', RPC_URL)
 log('using network', NETWORK_ID)
+log('using contract', CONTRACT_ADDRESS)
 log('using listen port', PORT)
 
 const provider = new JsonRpcProvider(RPC_URL, Number(NETWORK_ID));
 const wallet = new Wallet(process.env.PK, provider);
 const nonceManager = new NonceManager(wallet);
-const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, nonceManager);
+const contract = new Contract(CONTRACT_ADDRESS, abi, nonceManager);
 
 const app = express();
 
