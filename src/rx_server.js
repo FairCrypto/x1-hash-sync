@@ -1,14 +1,13 @@
 // import { RxHR } from '@akanass/rx-http-request';
 
 import * as http from "http";
-import * as rx from "rxjs";
 
 import dotenv from "dotenv";
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage.json";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
 import {processHash} from "./processHash.js";
-import {fromEvent} from "rxjs";
+import {fromEvent, map, pipe, reduce, tap} from "rxjs";
 
 const [,, ...args] = process.argv;
 
@@ -37,12 +36,13 @@ const contract = new Contract(CONTRACT_ADDRESS, abi, nonceManager);
 const server = http.createServer();
 
 fromEvent(server, 'request')
+  .pipe(tap((req) => log(req)))
   .subscribe(async (req, res) => {
     log(req.method, req.url);
     if (req.method === 'POST' && req.url === '/process_hash') {
-      const body = await rx.fromEvent(req, 'data')
-        .pipe(rx.map((chunk) => chunk.toString()))
-        .pipe(rx.reduce((acc, chunk) => acc + chunk))
+      const body = await fromEvent(req, 'data')
+        .pipe(map((chunk) => chunk.toString()))
+        .pipe(reduce((acc, chunk) => acc + chunk))
         .toPromise();
       const data = JSON.parse(body);
       log(data)
