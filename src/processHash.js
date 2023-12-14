@@ -2,7 +2,7 @@ import assert from "assert";
 import {solidityPacked} from "ethers";
 import debug from "debug";
 
-// const log = debug('hash-sync', {colors: false});
+const log = debug('hash-sync', {colors: false});
 
 export const processHash = async (hash, contract) => {
   try {
@@ -18,7 +18,7 @@ export const processHash = async (hash, contract) => {
     const c = p0.split('=')[1];
     const s = Buffer.from(s64, 'base64');
     const k = Buffer.from(key, 'hex').slice(0, 32);
-    // log(block_id, m, t, v, k, s)
+    log(account, m, t, v, k, s)
     const bytes = solidityPacked(
       ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
       [c, m, t, v, k, s]);

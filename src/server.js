@@ -3,9 +3,6 @@ import bodyParser from 'body-parser';
 import dotenv from "dotenv";
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage.json";
-import {open} from "sqlite";
-import path from "path";
-import sqlite3 from "sqlite3";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
 import {processHash} from "./processHash.js";
 
@@ -13,8 +10,8 @@ const [,, ...args] = process.argv;
 
 dotenv.config({ path: args[0] || '.env' });
 debug.enable('*');
-const log = debug('hash-sync')
 
+const log = debug('hash-sync')
 const abi = BlockStorage.abi;
 
 const RPC_URL = process.env.RPC_URL || 'https://x1-testnet.infrafc.org';
@@ -25,7 +22,7 @@ const PORT = process.env.PORT || 9997;
 
 log('using RPC', RPC_URL)
 log('using network', NETWORK_ID)
-log('using listen port', NETWORK_ID)
+log('using listen port', PORT)
 
 const provider = new JsonRpcProvider(RPC_URL, Number(NETWORK_ID));
 const wallet = new Wallet(process.env.PK, provider);
