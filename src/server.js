@@ -29,11 +29,6 @@ const wallet = new Wallet(process.env.PK, provider);
 const nonceManager = new NonceManager(wallet);
 const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, nonceManager);
 
-const providerIsReady = new Promise((resolve, reject) => {
-  provider.once('ready', resolve);
-  provider.once('error', reject);
-});
-
 const app = express();
 
 // Use middleware to parse JSON requests
@@ -42,7 +37,6 @@ app.use(bodyParser.json());
 // Define a route for handling POST requests
 app.post('/process_hash', async (req, res) => {
   // Print the received JSON data
-  await providerIsReady;
   log('RECV', req.body?.key);
   const txResult = await processHash(req.body, contract);
   log('SEND', txResult);
