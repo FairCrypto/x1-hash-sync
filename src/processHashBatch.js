@@ -38,8 +38,8 @@ export const processHashBatch = async (hashes, contract) => {
         [[], []]
       );
 
-    const gas = await contract.bulkStoreRecordsInc.estimateGas(params[0], params[1]);
-    const res = await contract.bulkStoreRecordsInc(params[0], params[1], {gasLimit: gas * 120n / 100n});
+    const gas = await contract.bulkStoreFullRecordsInc.estimateGas(params[0], params[1]);
+    const res = await contract.bulkStoreFullRecordsInc(params[0], params[1], {gasLimit: gas * 120n / 100n});
     return res?.value;
   } catch (e) {
     log('ERR', e?.message);
