@@ -50,8 +50,7 @@ fromEvent(server, 'request')
           }),
         );
     }),
-    bufferCount(2),
-    // tap((data) => log('RECV', data)),
+    bufferCount(10),
   )
   .subscribe(async (data) => {
     log(data);
