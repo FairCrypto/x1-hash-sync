@@ -21,10 +21,11 @@ const PORT = process.env.PORT || 9997;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const BATCH_SIZE = process.env.BATCH_SIZE || 10;
 
-log('using RPC', RPC_URL)
-log('using network', NETWORK_ID)
-log('using contract', CONTRACT_ADDRESS)
-log('using listen port', PORT)
+log('using RPC', RPC_URL);
+log('using network', NETWORK_ID);
+log('using contract', CONTRACT_ADDRESS);
+log('using listen port', PORT);
+log('using batch size', BATCH_SIZE);
 
 const provider = new JsonRpcProvider(RPC_URL, Number(NETWORK_ID));
 const wallet = new Wallet(process.env.PK, provider);
@@ -47,7 +48,7 @@ fromEvent(server, 'request')
           }),
         );
     }),
-    bufferCount(BATCH_SIZE),
+    bufferCount(Number(BATCH_SIZE)),
   )
   .subscribe(async (data) => {
     log(data);
