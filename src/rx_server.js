@@ -7,11 +7,12 @@ import debug from "debug";
 import BlockStorage from "../abi/BlockStorage.json";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
 import {processHash} from "./processHash.js";
-import {fromEvent, map, pipe, reduce, tap} from "rxjs";
+import {bufferCount, flatMap, fromEvent, map, mergeMap, pipe, reduce, tap} from "rxjs";
+import {processHashBatch} from "./processHashBatch.js";
 
-const [,, ...args] = process.argv;
+const [, , ...args] = process.argv;
 
-dotenv.config({ path: args[0] || '.env' });
+dotenv.config({path: args[0] || '.env'});
 debug.enable('*,-body-parser:*');
 
 const log = debug('hash-sync')
@@ -36,26 +37,28 @@ const contract = new Contract(CONTRACT_ADDRESS, abi, nonceManager);
 const server = http.createServer();
 
 fromEvent(server, 'request')
-  .pipe(tap((req) => log(req)))
-  .subscribe(async (req, res) => {
-    log(req.method, req.url);
-    if (req.method === 'POST' && req.url === '/process_hash') {
-      const body = await fromEvent(req, 'data')
-        .pipe(map((chunk) => chunk.toString()))
-        .pipe(reduce((acc, chunk) => acc + chunk))
-        .toPromise();
-      const data = JSON.parse(body);
-      log(data)
-      // log('RECV', data?.key);
-      // const txResult = await processHash(data, contract);
-      // if (txResult?.[1] === 0n) log('SEND', txResult?.[1]);
-      // res.writeHead(200, {'Content-Type': 'application/json'});
-      // res.end(JSON.stringify({ status: 'accepted' }));
-    } else {
-      // res.writeHead(404, {'Content-Type': 'application/json'});
-      // res.end(JSON.stringify({ status: 'not found' }));
-    }
+  .pipe(
+    mergeMap(([req, res]) => {
+      return fromEvent(req, 'data')
+        .pipe(
+          map((chunk) => chunk.toString()),
+          map((body) => [req, res, JSON.parse(body)]),
+          map(([req, res, data]) => {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            res.end(JSON.stringify({status: 'accepted'}));
+            return data
+          }),
+        );
+    }),
+    bufferCount(2),
+    // tap((data) => log('RECV', data)),
+  )
+  .subscribe(async (data) => {
+    log(data);
+    const txResult = await processHashBatch(data, contract);
+    if (txResult === 0n) log('SEND', txResult);
   });
+
 
 server.listen(PORT, '0.0.0.0', 100, () => {
   log(`Server is running on port ${PORT}`);
