@@ -1,13 +1,9 @@
-// import { RxHR } from '@akanass/rx-http-request';
-
 import * as http from "http";
-
 import dotenv from "dotenv";
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage.json";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
-import {processHash} from "./processHash.js";
-import {bufferCount, flatMap, fromEvent, map, mergeMap, pipe, reduce, tap} from "rxjs";
+import {bufferCount, fromEvent, map, mergeMap} from "rxjs";
 import {processHashBatch} from "./processHashBatch.js";
 
 const [, , ...args] = process.argv;
@@ -23,6 +19,7 @@ const NETWORK_ID = process.env.NETWORK_ID || '204005';
 // const MAX_RETRIES = process.env.MAX_RETRIES || '20';
 const PORT = process.env.PORT || 9997;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const BATCH_SIZE = process.env.BATCH_SIZE || 10;
 
 log('using RPC', RPC_URL)
 log('using network', NETWORK_ID)
@@ -50,7 +47,7 @@ fromEvent(server, 'request')
           }),
         );
     }),
-    bufferCount(10),
+    bufferCount(BATCH_SIZE),
   )
   .subscribe(async (data) => {
     log(data);
