@@ -64,14 +64,17 @@ let db;
 
   const provider = new JsonRpcProvider(RPC_URL, Number(NETWORK_ID));
   const wallet = new Wallet(process.env.PK, provider);
-  const nonceManager = new NonceManager(wallet);
-  const contract = new Contract(CONTRACT_ADDRESS, abi, nonceManager);
+  // const nonceManager = new NonceManager(wallet);
+  const contract = new Contract(CONTRACT_ADDRESS, abi, wallet);
   await new Promise(resolve => setTimeout(resolve, 1000));
-  await nonceManager.getNonce()
+  // await nonceManager.getNonce()
 
   for await (const hashes of getNextHash(db, Number(STARTING_HASH_ID))) {
     try {
-      log('hashes from', hashes[0]?.block_id, 'to', hashes[hashes.length - 1]?.block_id,'nonce', await nonceManager.getNonce())
+      log(
+        'hashes from', hashes[0]?.block_id, 'to', hashes[hashes.length - 1]?.block_id,
+        // 'nonce', await nonceManager.getNonce()
+      )
       const addresses = hashes.map(hash => hash.account);
       const hashIds = hashes.map(hash => hash.block_id);
       const bytes = hashes
