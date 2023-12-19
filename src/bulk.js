@@ -83,7 +83,7 @@ let db;
           const t = t0.split('=')[1];
           const c = p0.split('=')[1];
           const s = Buffer.from(s64, 'base64');
-          const k = Buffer.from(key, 'hex');
+          const k = Buffer.from(key, 'hex').slice(0, 32);
           if (k.length > 32) { // skip invalid keys
             return null;
           }
