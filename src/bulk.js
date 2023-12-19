@@ -30,7 +30,7 @@ async function* getNextHash(db, offset = 0) {
         SELECT block_id, hash_to_verify, key, account, created_at 
 		    FROM blocks 
 		    ORDER BY block_id ASC 
-		    LIMIT BATCH_SIZE
+		    LIMIT ${BATCH_SIZE}
 		    OFFSET ${offset};
       `;
       rows = await db.all(sql);
