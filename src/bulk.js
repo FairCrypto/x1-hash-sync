@@ -16,6 +16,7 @@ const DB_LOCATION = process.env.DB_LOCATION || './blockchain.db';
 const RPC_URL = process.env.RPC_URL || 'https://x1-testnet.infrafc.org';
 const NETWORK_ID = process.env.NETWORK_ID || '204005';
 const STARTING_HASH_ID = process.env.STARTING_HASH_ID || '0';
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 
 async function* getNextHash(db, offset = 0) {
   let off = offset;
@@ -48,6 +49,7 @@ let db;
   log('using DB', DB_LOCATION)
   log('using RPC', RPC_URL)
   log('using network', NETWORK_ID)
+  log('using contract', CONTRACT_ADDRESS)
 
   db = await open({
     filename: path.resolve(DB_LOCATION),
@@ -60,11 +62,11 @@ let db;
   const provider = new JsonRpcProvider(RPC_URL, Number(NETWORK_ID));
   const wallet = new Wallet(process.env.PK, provider);
   const nonceManager = new NonceManager(wallet);
-  const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, nonceManager);
+  const contract = new Contract(CONTRACT_ADDRESS, abi, nonceManager);
 
   for await (const hashes of getNextHash(db, Number(STARTING_HASH_ID))) {
     try {
-      // log('hashes', hashes.length)
+      log('hashes', hashes[0])
       const addresses = hashes.map(hash => hash.address);
       const hashIds = hashes.map(hash => hash.block_id);
       const bytes = hashes
