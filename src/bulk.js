@@ -59,14 +59,17 @@ let db;
 
   const provider = new JsonRpcProvider(RPC_URL, Number(NETWORK_ID));
   const wallet = new Wallet(process.env.PK, provider);
-  const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, wallet);
+  const nonceManager = new NonceManager(wallet);
+  const contract = new Contract(process.env.CONTRACT_ADDRESS, abi, nonceManager);
 
   for await (const hashes of getNextHash(db, Number(STARTING_HASH_ID))) {
     try {
       // log('hashes', hashes.length)
+      const addresses = hashes.map(hash => hash.address);
+      const hashIds = hashes.map(hash => hash.block_id);
       const bytes = hashes
         .map(hash => {
-          const {hash_to_verify, key} = hash;
+          const {hash_to_verify, key, address, block_idy} = hash;
           const [, type, v0, mtp, s64, hash64] = hash_to_verify.split('$');
           assert.equal(type, 'argon2id');
           const v = v0.split('=')[1];
@@ -89,7 +92,7 @@ let db;
         // await new Promise(resolve => setTimeout(resolve, 1000));
         continue;
       }
-      const res = await contract.bulkStoreRecordBytesInc(wallet.address, bytes);
+      const res = await contract.bulkStoreNewRecords(addresses, hashIds, bytes);
       log(bytes.length, res.value)
       // await new Promise(resolve => setTimeout(resolve, 1000));
     } catch (e) {
@@ -97,6 +100,7 @@ let db;
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
+
 
 })()
   .catch(log)
