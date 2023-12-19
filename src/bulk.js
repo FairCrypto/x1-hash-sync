@@ -1,4 +1,4 @@
-import { Contract, Wallet, solidityPacked, JsonRpcProvider, NonceManager} from "ethers";
+import {Contract, Wallet, solidityPacked, JsonRpcProvider, NonceManager, getAddress, isAddress} from "ethers";
 import path from "path";
 import dotenv from 'dotenv';
 import sqlite3 from 'sqlite3'
@@ -75,7 +75,11 @@ let db;
         'hashes from', hashes[0]?.block_id, 'to', hashes[hashes.length - 1]?.block_id,
         // 'nonce', await nonceManager.getNonce()
       )
-      const addresses = hashes.map(hash => hash.account);
+      const addresses = hashes.map(hash => {
+        const accountNormalized = getAddress(hash.account);
+        assert.ok(isAddress(accountNormalized), 'account is not valid: ' + accountNormalized);
+        return accountNormalized
+      });
       const hashIds = hashes.map(hash => hash.block_id);
       const bytes = hashes
         .map(hash => {
