@@ -19,6 +19,7 @@ const RPC_URL = process.env.RPC_URL || 'https://x1-testnet.infrafc.org';
 const NETWORK_ID = process.env.NETWORK_ID || '204005';
 const STARTING_HASH_ID = process.env.STARTING_HASH_ID || '0';
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const BATCH_SIZE = process.env.BATCH_SIZE ? Number(process.env.BATCH_SIZE) || 60 : 60;
 
 async function* getNextHash(db, offset = 0) {
   let off = offset;
@@ -29,7 +30,7 @@ async function* getNextHash(db, offset = 0) {
         SELECT block_id, hash_to_verify, key, account, created_at 
 		    FROM blocks 
 		    ORDER BY block_id ASC 
-		    LIMIT 60
+		    LIMIT BATCH_SIZE
 		    OFFSET ${offset};
       `;
       rows = await db.all(sql);
@@ -38,7 +39,7 @@ async function* getNextHash(db, offset = 0) {
       log(e)
       yield [];
     }
-    offset += 60;
+    offset += BATCH_SIZE;
   } while (rows.length > 0)
 }
 
@@ -68,7 +69,7 @@ let db;
 
   for await (const hashes of getNextHash(db, Number(STARTING_HASH_ID))) {
     try {
-      log('hashes', hashes[0])
+      log('hashes from', hashes[0]?.block_id, 'to', hashes[hashes.length - 1]?.block_id,'nonce', await nonceManager.getNonce())
       const addresses = hashes.map(hash => hash.account);
       const hashIds = hashes.map(hash => hash.block_id);
       const bytes = hashes
@@ -97,11 +98,10 @@ let db;
         continue;
       }
       const res = await contract.bulkStoreNewRecords(addresses, hashIds, bytes);
-      await res.wait();
       log(bytes.length, res.value)
       await new Promise(resolve => setTimeout(resolve, 100));
     } catch (e) {
-      log(e);
+      log(e.message);
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
