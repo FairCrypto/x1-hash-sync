@@ -7,7 +7,9 @@ import debug from "debug";
 import assert from "assert";
 import BlockStorage from "../abi/BlockStorage.json" assert { type: "json" };
 
-dotenv.config();
+const [,, ...args] = process.argv;
+
+dotenv.config({ path: args[0] || '.env' });
 
 debug.enable('*');
 
@@ -67,7 +69,7 @@ let db;
   for await (const hashes of getNextHash(db, Number(STARTING_HASH_ID))) {
     try {
       log('hashes', hashes[0])
-      const addresses = hashes.map(hash => hash.address);
+      const addresses = hashes.map(hash => hash.account);
       const hashIds = hashes.map(hash => hash.block_id);
       const bytes = hashes
         .map(hash => {
