@@ -66,6 +66,8 @@ let db;
   const wallet = new Wallet(process.env.PK, provider);
   const nonceManager = new NonceManager(wallet);
   const contract = new Contract(CONTRACT_ADDRESS, abi, nonceManager);
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  await nonceManager.getNonce()
 
   for await (const hashes of getNextHash(db, Number(STARTING_HASH_ID))) {
     try {
