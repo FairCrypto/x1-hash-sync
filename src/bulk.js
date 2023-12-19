@@ -98,7 +98,7 @@ let db;
       }
       const res = await contract.bulkStoreNewRecords(addresses, hashIds, bytes);
       log(bytes.length, res.value)
-      // await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 100));
     } catch (e) {
       log(e);
       await new Promise(resolve => setTimeout(resolve, 1000));
