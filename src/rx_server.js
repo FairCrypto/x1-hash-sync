@@ -53,7 +53,7 @@ fromEvent(server, 'request')
   .subscribe(async (data) => {
     log(data);
     const txResult = await processHashBatch(data, contract);
-    if (txResult === 0n) log('SEND', txResult);
+    log('SEND', txResult);
   });
 
 
