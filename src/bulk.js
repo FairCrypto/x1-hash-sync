@@ -98,6 +98,7 @@ let db;
           const c = p0.split('=')[1];
           const s = Buffer.from(s64, 'base64');
           const k = Buffer.from(key, 'hex').slice(0, 32);
+          console.log(m, t, c)
           if (k.length > 32) { // skip invalid keys
             return null;
           }
@@ -118,8 +119,8 @@ let db;
       }
       const [addresses, hashIds, bytes] = unzip3(zippedData);
       // console.log(addresses);
-      console.log(JSON.stringify(hashIds));
-      bytes.forEach(b => console.log(b));
+      // console.log(JSON.stringify(hashIds));
+      // bytes.forEach(b => console.log(b));
       const gas = await contract.bulkStoreNewRecords.estimateGas(addresses, hashIds, bytes);
       const res = await contract.bulkStoreNewRecords(addresses, hashIds, bytes, {
         gasLimit: gas * 120n / 100n,
