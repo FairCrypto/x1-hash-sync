@@ -29,8 +29,8 @@ log('using batch size', BATCH_SIZE);
 
 const provider = new JsonRpcProvider(RPC_URL, Number(NETWORK_ID));
 const wallet = new Wallet(process.env.PK, provider);
-const nonceManager = new NonceManager(wallet);
-const contract = new Contract(CONTRACT_ADDRESS, abi, nonceManager);
+// const nonceManager = new NonceManager(wallet);
+const contract = new Contract(CONTRACT_ADDRESS, abi, wallet);
 
 const server = http.createServer();
 

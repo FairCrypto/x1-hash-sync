@@ -44,7 +44,8 @@ export const processHashBatch = async (hashes, contract) => {
       maxFeePerGas: 10_000_000_000n,
       maxPriorityFeePerGas: 2_000_000_000n,
     });
-    return res?.value;
+    const result = await res.wait(1);
+    return result?.status;
   } catch (e) {
     log('ERR', e?.message);
     // throw e;
