@@ -128,7 +128,7 @@ let db;
       log(bytes.length, result?.status)
       await new Promise(resolve => setTimeout(resolve, 100));
     } catch (e) {
-      log('error');
+      log('error', e);
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
