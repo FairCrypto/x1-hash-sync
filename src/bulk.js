@@ -21,6 +21,16 @@ const STARTING_HASH_ID = process.env.STARTING_HASH_ID || '0';
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const BATCH_SIZE = process.env.BATCH_SIZE ? Number(process.env.BATCH_SIZE) || 60 : 60;
 
+const unzip3 = (hashes) => hashes.reduce(
+    (acc, [v1, v2, v3]) => {
+      acc[0].push(v1);
+      acc[1].push(v2);
+      acc[2].push(v3);
+      return acc;
+    },
+    [[], [], []]
+  );
+
 async function* getNextHash(db, offset = 0) {
   let off = offset;
   let rows = [];
@@ -75,15 +85,9 @@ let db;
         'hashes from', hashes[0]?.block_id, 'to', hashes[hashes.length - 1]?.block_id,
         // 'nonce', await nonceManager.getNonce()
       )
-      const addresses = hashes.map(hash => {
-        const accountNormalized = getAddress(hash.account);
-        assert.ok(isAddress(accountNormalized), 'account is not valid: ' + accountNormalized);
-        return accountNormalized
-      });
-      const hashIds = hashes.map(hash => hash.block_id);
-      const bytes = hashes
+      const zippedData = hashes
         .map(hash => {
-          const {hash_to_verify, key, address, block_idy} = hash;
+          const {hash_to_verify, key, account, block_id} = hash;
           const [, type, v0, mtp, s64, hash64] = hash_to_verify.split('$');
           assert.equal(type, 'argon2id');
           const v = v0.split('=')[1];
@@ -97,20 +101,27 @@ let db;
           if (k.length > 32) { // skip invalid keys
             return null;
           }
-          return solidityPacked(
+          if (account.length !== 42) {
+            return null // skip invalid accounts
+          }
+          const accountNormalized = getAddress(account);
+          assert.ok(isAddress(accountNormalized), 'account is not valid: ' + accountNormalized);
+          const bb = solidityPacked(
             ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
             [c, m, t, v, k, s]);
+          return [accountNormalized, block_id, bb];
         }).filter(Boolean);
-      if (!bytes.length) {
-        log(hashes[0]?.block_id, 'no conforming hashes; skipping');
+      if (!zippedData.length) {
+        log( 'no conforming records; skipping');
         // await new Promise(resolve => setTimeout(resolve, 1000));
         continue;
       }
+      const [addresses, hashIds, bytes] = unzip3(zippedData);
       const res = await contract.bulkStoreNewRecords(addresses, hashIds, bytes);
       log(bytes.length, res.value)
       await new Promise(resolve => setTimeout(resolve, 100));
     } catch (e) {
-      log(e.message);
+      log(e.message, );
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
