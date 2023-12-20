@@ -117,8 +117,12 @@ let db;
         continue;
       }
       const [addresses, hashIds, bytes] = unzip3(zippedData);
-      const res = await contract.bulkStoreNewRecords(addresses, hashIds, bytes);
-      log(bytes.length, res.value)
+      const gas = await contract.bulkStoreNewRecords.estimateGas(addresses, hashIds, bytes);
+      const res = await contract.bulkStoreNewRecords(addresses, hashIds, bytes, {
+        gasLimit: gas * 120n / 100n,
+      });
+      const result = await res.wait(0);
+      log(bytes.length, result?.status)
       await new Promise(resolve => setTimeout(resolve, 100));
     } catch (e) {
       log(e.message, );
