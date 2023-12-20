@@ -120,9 +120,9 @@ let db;
       // console.log(addresses);
       console.log(JSON.stringify(hashIds));
       bytes.forEach(b => console.log(b));
-      const gas = await contract.bulkStoreNewRecords.estimateGas(addresses, hashIds, bytes);
+      // const gas = await contract.bulkStoreNewRecords.estimateGas(addresses, hashIds, bytes);
       const res = await contract.bulkStoreNewRecords(addresses, hashIds, bytes, {
-        gasLimit: gas * 120n / 100n,
+        // gasLimit: gas * 120n / 100n,
       });
       const result = await res.wait(0);
       log(bytes.length, result?.status)
