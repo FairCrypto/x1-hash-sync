@@ -117,6 +117,9 @@ let db;
         continue;
       }
       const [addresses, hashIds, bytes] = unzip3(zippedData);
+      console.log(addresses);
+      console.log(hashIds);
+      console.log(bytes);
       const gas = await contract.bulkStoreNewRecords.estimateGas(addresses, hashIds, bytes);
       const res = await contract.bulkStoreNewRecords(addresses, hashIds, bytes, {
         gasLimit: gas * 120n / 100n,
