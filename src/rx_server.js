@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage_v0.json";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
-import {bufferCount, filter, fromEvent, map, mergeMap} from "rxjs";
-import {processHashBatch} from "./processHashBatch.js";
+import {bufferCount, filter, fromEvent, map, merge, mergeMap, partition} from "rxjs";
+import {processHashBatch, processNewHashBatch} from "./processNewHashBatch.js";
 
 const [, , ...args] = process.argv;
 
@@ -32,9 +32,16 @@ const wallet = new Wallet(process.env.PK, provider);
 // const nonceManager = new NonceManager(wallet);
 const contract = new Contract(CONTRACT_ADDRESS, abi, wallet);
 
+let subscribe;
+process.on('SIGINT', () => {
+  log('SIGINT received, exiting');
+  if (subscribe) subscribe.unsubscribe();
+  process.exit(0);
+})
+
 const server = http.createServer();
 
-fromEvent(server, 'request')
+const records$ = fromEvent(server, 'request')
   .pipe(
     mergeMap(([req, res]) => {
       return fromEvent(req, 'data')
@@ -49,16 +56,25 @@ fromEvent(server, 'request')
           }),
         );
     }),
-    filter((data) => data.type === '0'),
+    // filter((data) => data.type === '0'),
+    // bufferCount(Number(BATCH_SIZE)),
+  );
+
+const [blocks, xunis] = records$.pipe(partition((data) => data.type === '0'));
+
+subscribe = merge(
+  blocks.pipe(
     bufferCount(Number(BATCH_SIZE)),
+    mergeMap(data => processNewHashBatch(data, contract))
+  ),
+  xunis.pipe(
+    bufferCount(Number(BATCH_SIZE)),
+    mergeMap(data => processHashBatch(data, contract, wallet.address))
   )
-  .subscribe(async (data) => {
-    log(data);
-    const txResult = await processHashBatch(data, contract);
-    log('SEND', txResult);
+).subscribe(val => log('SEND', val));
+
+
+server.listen(PORT, '0.0.0.0', 100,
+  () => {
+    log(`Server is running on port ${PORT}`);
   });
-
-
-server.listen(PORT, '0.0.0.0', 100, () => {
-  log(`Server is running on port ${PORT}`);
-});
