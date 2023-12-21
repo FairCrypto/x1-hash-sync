@@ -41,10 +41,10 @@ process.on('SIGINT', () => {
 
 const server = http.createServer();
 
-const records$ = fromEvent(server, 'request')
+const qq = fromEvent(server, 'request')
   .pipe(
     mergeMap(([req, res]) => {
-      return fromEvent(req, 'data')
+      const records$ = fromEvent(req, 'data')
         .pipe(
           map((chunk) => chunk.toString()),
           map((body) => [req, res, JSON.parse(body)]),
@@ -55,23 +55,21 @@ const records$ = fromEvent(server, 'request')
             return data
           }),
         );
+      const [blocks, xunis] = partition(records$, (data) => data.type === '0');
+      return merge(
+        blocks.pipe(
+          bufferCount(Number(BATCH_SIZE)),
+          mergeMap(data => processNewHashBatch(data, contract))
+        ),
+        xunis.pipe(
+          bufferCount(Number(BATCH_SIZE)),
+          mergeMap(data => processHashBatch(data, contract, wallet.address))
+        )
+      )
     }),
     // filter((data) => data.type === '0'),
     // bufferCount(Number(BATCH_SIZE)),
-  );
-
-const [blocks, xunis] = partition(records$, (data) => data.type === '0');
-
-subscribe = merge(
-  blocks.pipe(
-    bufferCount(Number(BATCH_SIZE)),
-    mergeMap(data => processNewHashBatch(data, contract))
-  ),
-  xunis.pipe(
-    bufferCount(Number(BATCH_SIZE)),
-    mergeMap(data => processHashBatch(data, contract, wallet.address))
-  )
-).subscribe(val => log('SEND', val));
+  ).subscribe(val => log('SEND', val));
 
 
 server.listen(PORT, '0.0.0.0', 100,
