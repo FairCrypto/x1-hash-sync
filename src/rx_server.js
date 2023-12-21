@@ -58,9 +58,9 @@ subscribe = fromEvent(server, 'request')
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
             // console.log(data)
-            return [req, res, data]
+            return data
           }),
-          tap(([req, res, data]) => log('block', data)),
+          tap((data) => log('block', data)),
           bufferCount(Number(BATCH_SIZE)),
           tap((data) => log('block', data)),
           mergeMap(data => processNewHashBatch(data, contract))
@@ -71,7 +71,7 @@ subscribe = fromEvent(server, 'request')
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
             // console.log(data)
-            return [req, res, data]
+            return data
           }),
           bufferCount(Number(BATCH_SIZE)),
           mergeMap(data => processHashBatch(data, contract, wallet.address))
