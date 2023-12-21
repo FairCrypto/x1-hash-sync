@@ -60,13 +60,13 @@ subscribe = fromEvent(server, 'request')
             // console.log(data)
             return data
           }),
-          tap((data) => log('block', data)),
+          // tap((data) => log('block', data)),
           bufferCount(Number(BATCH_SIZE)),
-          tap((data) => log('batch', data)),
+          // tap((data) => log('batch', data)),
           mergeMap(data => processNewHashBatch(data, contract))
         ),
         xunis.pipe(
-          tap(([req, res, data]) => log('xuni', data)),
+          // tap(([req, res, data]) => log('xuni', data)),
           map(([req, res, data]) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
