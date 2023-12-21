@@ -54,13 +54,13 @@ subscribe = fromEvent(server, 'request')
         ([req, res, data]) => data.type === '0');
       return merge(
         blocks.pipe(
-          // tap(([req, res, data]) => log('block', data)),
           map(([req, res, data]) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
             // console.log(data)
             return [req, res, data]
           }),
+          tap(([req, res, data]) => log('block', data)),
           bufferCount(Number(BATCH_SIZE)),
           tap((data) => log('block', data)),
           mergeMap(data => processNewHashBatch(data, contract))
