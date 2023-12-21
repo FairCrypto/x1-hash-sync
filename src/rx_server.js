@@ -41,27 +41,35 @@ process.on('SIGINT', () => {
 
 const server = http.createServer();
 
-const qq = fromEvent(server, 'request')
+subscribe = fromEvent(server, 'request')
   .pipe(
     mergeMap(([req, res]) => {
       const records$ = fromEvent(req, 'data')
         .pipe(
           map((chunk) => chunk.toString()),
-          map((body) => [req, res, JSON.parse(body)]),
+          map((body) => [req, res, JSON.parse(body)])
+        );
+      const [blocks, xunis] = partition(
+        records$,
+        ([req, res, data]) => data.type === '0');
+      return merge(
+        blocks.pipe(
           map(([req, res, data]) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
             // console.log(data)
-            return data
+            return [req, res, data]
           }),
-        );
-      const [blocks, xunis] = partition(records$, (data) => data.type === '0');
-      return merge(
-        blocks.pipe(
           bufferCount(Number(BATCH_SIZE)),
           mergeMap(data => processNewHashBatch(data, contract))
         ),
         xunis.pipe(
+          map(([req, res, data]) => {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            res.end(JSON.stringify({status: 'accepted'}));
+            // console.log(data)
+            return [req, res, data]
+          }),
           bufferCount(Number(BATCH_SIZE)),
           mergeMap(data => processHashBatch(data, contract, wallet.address))
         )
