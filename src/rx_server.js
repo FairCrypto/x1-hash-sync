@@ -60,7 +60,7 @@ const records$ = fromEvent(server, 'request')
     // bufferCount(Number(BATCH_SIZE)),
   );
 
-const [blocks, xunis] = records$.pipe(partition((data) => data.type === '0'));
+const [blocks, xunis] = partition(records$, (data) => data.type === '0');
 
 subscribe = merge(
   blocks.pipe(
