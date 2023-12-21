@@ -44,12 +44,12 @@ fromEvent(server, 'request')
           map(([req, res, data]) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
-            console.log(data)
+            // console.log(data)
             return data
           }),
         );
     }),
-    // filter((data) => data.type === 0),
+    filter((data) => data.type === '0'),
     bufferCount(Number(BATCH_SIZE)),
   )
   .subscribe(async (data) => {
