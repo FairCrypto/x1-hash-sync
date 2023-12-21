@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage_v0.json";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
-import {bufferCount, fromEvent, map, mergeMap} from "rxjs";
+import {bufferCount, filter, fromEvent, map, mergeMap} from "rxjs";
 import {processHashBatch} from "./processHashBatch.js";
 
 const [, , ...args] = process.argv;
@@ -48,6 +48,7 @@ fromEvent(server, 'request')
           }),
         );
     }),
+    filter((data) => data.type === 1),
     bufferCount(Number(BATCH_SIZE)),
   )
   .subscribe(async (data) => {

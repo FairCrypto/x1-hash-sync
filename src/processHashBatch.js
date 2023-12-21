@@ -5,7 +5,7 @@ import debug from "debug";
 const log = debug('hash-sync', {colors: false});
 
 const prepareBytes = (hash) => {
-  const {hash_to_verify, key, account} = hash;
+  const {hash_to_verify, key, account, block_id} = hash;
   const [, type, v0, mtp, s64, hash64] = hash_to_verify.split('$');
   // log(type, v0, mtp, 's=', s64, 'h=', hash64);
   assert.equal(type, 'argon2id');
@@ -22,7 +22,7 @@ const prepareBytes = (hash) => {
   const bytes = solidityPacked(
     ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
     [c, m, t, v, k, s]);
-  return [accountNormalized, bytes];
+  return [accountNormalized, block_id, bytes];
 }
 
 export const processHashBatch = async (hashes, contract) => {
@@ -30,12 +30,13 @@ export const processHashBatch = async (hashes, contract) => {
   try {
     const params = hashes.map(prepareBytes)
       .reduce(
-        (acc, [value1, value2]) => {
+        (acc, [value1, value2, value3]) => {
           acc[0].push(value1);
           acc[1].push(value2);
+          acc[2].push(value3);
           return acc;
         },
-        [[], []]
+        [[], [], []]
       );
 
     const gas = await contract.bulkStoreNewRecords.estimateGas(params[0], params[1]);
