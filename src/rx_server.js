@@ -62,7 +62,7 @@ subscribe = fromEvent(server, 'request')
           }),
           // tap((data) => log('block', data)),
           bufferCount(Number(BATCH_SIZE)),
-          // tap((data) => log('batch', data)),
+          tap((data) => log('batch', data)),
           map(data => processNewHashBatch(data, contract))
         ),
         xunis.pipe(
