@@ -59,6 +59,13 @@ let db;
 (async () => {
   const abi = BlockStorage.abi;
 
+  process.on('SIGINT', () => {
+    log('SIGINT received');
+    db && db.close();
+    log('db closed');
+    process.exit(1);
+  });
+
   log('using DB', DB_LOCATION)
   log('using RPC', RPC_URL)
   log('using network', NETWORK_ID)
@@ -80,10 +87,14 @@ let db;
   // await nonceManager.getNonce()
 
   for await (const hashes of getNextHash(db, Number(STARTING_HASH_ID))) {
+    if (!hashes || !Array.isArray(hashes) || !hashes.length) {
+      log( 'no records; skipping');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      continue;
+    }
     try {
       log(
         'hashes from', hashes[0]?.block_id, 'to', hashes[hashes.length - 1]?.block_id,
-        // 'nonce', await nonceManager.getNonce()
       )
       const zippedData = hashes
         .map(hash => {
