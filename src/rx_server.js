@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage_v0.json";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
-import {bufferCount, filter, fromEvent, map, merge, mergeMap, partition, tap} from "rxjs";
+import {bufferCount, filter, from, fromEvent, map, merge, mergeMap, partition, tap} from "rxjs";
 import {processHashBatch, processNewHashBatch} from "./processNewHashBatch.js";
 
 const [, , ...args] = process.argv;
@@ -63,7 +63,7 @@ subscribe = fromEvent(server, 'request')
           // tap((data) => log('block', data)),
           bufferCount(Number(BATCH_SIZE)),
           tap((data) => log('batch', data)),
-          map(data => processNewHashBatch(data, contract))
+          map(data => from(processNewHashBatch(data, contract)))
         ),
         xunis.pipe(
           // tap(([req, res, data]) => log('xuni', data)),
@@ -74,7 +74,7 @@ subscribe = fromEvent(server, 'request')
             return data
           }),
           bufferCount(Number(BATCH_SIZE)),
-          map(data => processHashBatch(data, contract, wallet.address))
+          map(data => from(processHashBatch(data, contract, wallet.address)))
         )
       )
     })
