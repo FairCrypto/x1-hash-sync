@@ -48,7 +48,7 @@ fromEvent(server, 'request')
           }),
         );
     }),
-    filter((data) => data.type === 1),
+    filter((data) => data.type === 0),
     bufferCount(Number(BATCH_SIZE)),
   )
   .subscribe(async (data) => {
