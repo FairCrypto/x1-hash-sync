@@ -132,7 +132,7 @@ let db;
       const res = await contract.bulkStoreNewRecords(addresses, hashIds, bytes, {
         gasLimit: gas * 120n / 100n,
       });
-      const result = await res.wait(0);
+      const result = await res.wait(1);
       log(bytes.length, result?.status)
       await new Promise(resolve => setTimeout(resolve, 100));
     } catch (e) {
