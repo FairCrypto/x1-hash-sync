@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage_v0.json";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
-import {bufferCount, filter, fromEvent, map, merge, mergeMap, partition} from "rxjs";
+import {bufferCount, filter, fromEvent, map, merge, mergeMap, partition, tap} from "rxjs";
 import {processHashBatch, processNewHashBatch} from "./processNewHashBatch.js";
 
 const [, , ...args] = process.argv;
@@ -54,6 +54,7 @@ subscribe = fromEvent(server, 'request')
         ([req, res, data]) => data.type === '0');
       return merge(
         blocks.pipe(
+          tap(([req, res, data]) => log('block', data)),
           map(([req, res, data]) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
@@ -64,6 +65,7 @@ subscribe = fromEvent(server, 'request')
           mergeMap(data => processNewHashBatch(data, contract))
         ),
         xunis.pipe(
+          tap(([req, res, data]) => log('xuni', data)),
           map(([req, res, data]) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
@@ -74,9 +76,7 @@ subscribe = fromEvent(server, 'request')
           mergeMap(data => processHashBatch(data, contract, wallet.address))
         )
       )
-    }),
-    // filter((data) => data.type === '0'),
-    // bufferCount(Number(BATCH_SIZE)),
+    })
   ).subscribe(val => log('SEND', val));
 
 
