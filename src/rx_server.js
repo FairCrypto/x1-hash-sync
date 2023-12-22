@@ -75,8 +75,8 @@ fromEvent(server, 'request')
             // console.log(data)
             return data
           }),
-          // bufferCount(Number(1)),
-          bufferTime(10_000, null, Number(BATCH_SIZE)),
+          bufferCount(Number(BATCH_SIZE)),
+          // bufferTime(10_000, null, Number(BATCH_SIZE)),
           // bufferTime(10_000),
           tap((data) => log('xuni batch', data)),
           map(data => ['1', data])
