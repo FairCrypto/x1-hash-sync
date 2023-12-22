@@ -54,7 +54,7 @@ fromEvent(server, 'request')
         ([req, res, data]) => data.type === '0');
       return merge(
         blocks$.pipe(
-          map(([req, res, data]) => {
+          mergeMap(([req, res, data]) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
             return data
