@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage_v0.json";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
-import {bufferCount, filter, from, fromEvent, map, merge, mergeMap, partition, tap} from "rxjs";
+import {bufferCount, bufferTime, filter, from, fromEvent, map, merge, mergeMap, partition, tap} from "rxjs";
 import {processHashBatch, processNewHashBatch} from "./processNewHashBatch.js";
 
 const [, , ...args] = process.argv;
@@ -61,7 +61,7 @@ fromEvent(server, 'request')
             return data
           }),
           // tap((data) => log('block', data)),
-          bufferCount(10),
+          bufferTime(10),
           tap((data) => log('batch', data)),
           map(data => ['0', data])
         ),
