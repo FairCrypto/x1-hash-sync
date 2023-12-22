@@ -49,18 +49,18 @@ fromEvent(server, 'request')
           map((chunk) => chunk.toString()),
           map((body) => [req, res, JSON.parse(body)])
         );
-      //const [blocks, xunis] = partition(
-      //  records$,
-      //  ([req, res, data]) => data.type === '0');
-      //return merge(
-      return records$.pipe(
+      const [blocks$, xunis$] = partition(
+        records$,
+        ([req, res, data]) => data.type === '0');
+      // return merge(
+      return blocks$.pipe(
           map(([req, res, data]) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
             // console.log(data)
             return data
           }),
-          // tap((data) => log('block', data)),
+          tap((data) => log('block', data)),
           // bufferTime(10_000),
           // bufferCount(Number(BATCH_SIZE)),
           bufferCount(Number(BATCH_SIZE)),
