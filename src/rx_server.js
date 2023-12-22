@@ -63,7 +63,7 @@ subscribe = fromEvent(server, 'request')
           // tap((data) => log('block', data)),
           bufferCount(Number(BATCH_SIZE)),
           tap((data) => log('batch', data)),
-          map(data => from(processNewHashBatch(data, contract)))
+          mergeMap(data => from(processNewHashBatch(data, contract)))
         ),
         xunis.pipe(
           // tap(([req, res, data]) => log('xuni', data)),
@@ -74,7 +74,7 @@ subscribe = fromEvent(server, 'request')
             return data
           }),
           bufferCount(Number(BATCH_SIZE)),
-          map(data => from(processHashBatch(data, contract, wallet.address)))
+          mergeMap(data => from(processHashBatch(data, contract, wallet.address)))
         )
       )
     })
