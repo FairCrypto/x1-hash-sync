@@ -61,7 +61,7 @@ fromEvent(server, 'request')
             return data
           }),
           // tap((data) => log('block', data)),
-          bufferCount(1),
+          bufferCount(10),
           tap((data) => log('batch', data)),
           map(data => ['0', data])
         ),
@@ -73,7 +73,7 @@ fromEvent(server, 'request')
             // console.log(data)
             return data
           }),
-          bufferCount(1),
+          bufferCount(10),
           tap((data) => log('xuni batch', data)),
           map(data => ['1', data])
         ),
