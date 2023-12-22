@@ -41,7 +41,7 @@ process.on('SIGINT', () => {
 
 const server = http.createServer();
 
-subscribe = fromEvent(server, 'request')
+fromEvent(server, 'request')
   .pipe(
     mergeMap(([req, res]) => {
       const records$ = fromEvent(req, 'data')
@@ -76,8 +76,7 @@ subscribe = fromEvent(server, 'request')
           tap((data) => log('xuni', data)),
           bufferCount(Number(BATCH_SIZE)),
           // mergeMap(data => from(processHashBatch(data, contract, wallet.address)))
-        ),
-        2
+        )
       )
     })
   ).subscribe(val => log('SEND', val));
