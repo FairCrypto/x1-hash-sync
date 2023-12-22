@@ -41,49 +41,59 @@ process.on('SIGINT', () => {
 
 const server = http.createServer();
 
-fromEvent(server, 'request')
+const records$ = fromEvent(server, 'request')
   .pipe(
     mergeMap(([req, res]) => {
-      const records$ = fromEvent(req, 'data')
+      return fromEvent(req, 'data')
         .pipe(
           map((chunk) => chunk.toString()),
           map((body) => [req, res, JSON.parse(body)])
-        );
-      const [blocks$, xunis$] = partition(
-        records$,
-        ([req, res, data]) => data.type === '0');
-      const batchedBlocks$ = blocks$.pipe(
-        map(([req, res, data]) => {
-          res.writeHead(200, {'Content-Type': 'application/json'});
-          res.end(JSON.stringify({status: 'accepted'}));
-          return data
-        }),
-        tap((data) => log('block', data)),
-        // bufferTime(10_000),
-        bufferCount(Number(BATCH_SIZE)),
-        // bufferTime(10_000, null, Number(BATCH_SIZE)),
-        map(data => ['0', data])
-      );
-      const batchedXunis$ = xunis$.pipe(
-        map(([req, res, data]) => {
-          res.writeHead(200, {'Content-Type': 'application/json'});
-          res.end(JSON.stringify({status: 'accepted'}));
-          return data
-        }),
-        tap((data) => log('xuni', data)),
-        // bufferCount(Number(BATCH_SIZE)),
-        bufferTime(1_000, null, Number(BATCH_SIZE)),
-        map(data => ['1', data])
-      );
-      return merge(batchedBlocks$, batchedXunis$)
+        )
     })
-  ).subscribe(async ([type, data]) => {
-    console.log(data)
-    if (data.length === 0) return;
-    const res = type = '0'
-      ? await processNewHashBatch(data, contract)
-      : await processHashBatch(data, contract, wallet.address);
-    log('SEND', res)
+  );
+
+const [blocks$, xunis$] = partition(
+  records$,
+  ([req, res, data]) => data.type === '0'
+);
+
+const batchedBlocks$ = blocks$.pipe(
+  map(([req, res, data]) => {
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    res.end(JSON.stringify({status: 'accepted'}));
+    return data
+  }),
+  tap((data) => log('block', data)),
+  // bufferTime(10_000),
+  bufferCount(Number(BATCH_SIZE)),
+  // bufferTime(10_000, null, Number(BATCH_SIZE)),
+  map(data => ['0', data])
+).subscribe(async ([type, data]) => {
+  console.log(data)
+  if (data.length === 0) return;
+  const res = type = '0'
+    ? await processNewHashBatch(data, contract)
+    : await processHashBatch(data, contract, wallet.address);
+  log('SEND', res)
+});
+
+const batchedXunis$ = xunis$.pipe(
+  map(([req, res, data]) => {
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    res.end(JSON.stringify({status: 'accepted'}));
+    return data
+  }),
+  tap((data) => log('xuni', data)),
+  // bufferCount(Number(BATCH_SIZE)),
+  bufferTime(1_000, null, Number(BATCH_SIZE)),
+  map(data => ['1', data])
+).subscribe(async ([type, data]) => {
+  console.log(data)
+  if (data.length === 0) return;
+  const res = type = '0'
+    ? await processNewHashBatch(data, contract)
+    : await processHashBatch(data, contract, wallet.address);
+  log('SEND', res)
 });
 
 
