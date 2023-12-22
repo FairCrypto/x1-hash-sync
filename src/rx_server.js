@@ -63,15 +63,12 @@ const batchedBlocks$ = blocks$.pipe(
     res.end(JSON.stringify({status: 'accepted'}));
     return data
   }),
-  // tap((data) => log('block', data)),
   bufferCount(Number(BATCH_SIZE)),
-  // bufferTime(10_000, null, Number(BATCH_SIZE)),
-  // map(data => ['0', data])
-).subscribe(async ([type, data]) => {
-  console.log(data)
+).subscribe(async (data) => {
+  log('hashes', data.length)
   if (data.length === 0) return;
   const res = await processNewHashBatch(data, contract);
-  log('SEND', res)
+  log('SEND hashes', res)
 });
 
 const batchedXunis$ = xunis$.pipe(
@@ -80,15 +77,12 @@ const batchedXunis$ = xunis$.pipe(
     res.end(JSON.stringify({status: 'accepted'}));
     return data
   }),
-  // tap((data) => log('xuni', data)),
   bufferCount(Number(BATCH_SIZE)),
-  // bufferTime(1_000, null, Number(BATCH_SIZE)),
-  // map(data => ['1', data])
-).subscribe(async ([type, data]) => {
-  console.log('xunis', data)
+).subscribe(async (data) => {
+  log('xunis', data.length)
   if (data.length === 0) return;
-  const res = type = await processHashBatch(data, contract, wallet.address);
-  log('SEND XUNI', res)
+  const res = await processHashBatch(data, contract, wallet.address);
+  log('SEND xunis', res)
 });
 
 server.listen(PORT, '0.0.0.0', 100,
