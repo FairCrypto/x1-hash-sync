@@ -43,7 +43,7 @@ const server = http.createServer();
 
 subscribe = fromEvent(server, 'request')
   .pipe(
-    map(([req, res]) => {
+    mergeMap(([req, res]) => {
       const records$ = fromEvent(req, 'data')
         .pipe(
           map((chunk) => chunk.toString()),
@@ -76,7 +76,8 @@ subscribe = fromEvent(server, 'request')
           tap((data) => log('xuni', data)),
           bufferCount(Number(BATCH_SIZE)),
           // mergeMap(data => from(processHashBatch(data, contract, wallet.address)))
-        )
+        ),
+        2
       )
     })
   ).subscribe(val => log('SEND', val));
