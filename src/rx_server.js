@@ -52,34 +52,30 @@ fromEvent(server, 'request')
       const [blocks$, xunis$] = partition(
         records$,
         ([req, res, data]) => data.type === '0');
-      return merge(
-        blocks$.pipe(
-          mergeMap(([req, res, data]) => {
-            res.writeHead(200, {'Content-Type': 'application/json'});
-            res.end(JSON.stringify({status: 'accepted'}));
-            return data
-          }),
-          tap((data) => log('block', data)),
-          // bufferTime(10_000),
-          bufferCount(Number(BATCH_SIZE)),
-          // bufferTime(10_000, null, Number(BATCH_SIZE)),
-          map(data => ['0', data])
-        ),
-        xunis$.pipe(
-          // tap(([req, res, data]) => log('xuni', data)),
-          map(([req, res, data]) => {
-            res.writeHead(200, {'Content-Type': 'application/json'});
-            res.end(JSON.stringify({status: 'accepted'}));
-            // console.log(data)
-            return data
-          }),
-          bufferCount(Number(BATCH_SIZE)),
-          // bufferTime(10_000, null, Number(BATCH_SIZE)),
-          // bufferTime(10_000),
-          // tap((data) => log('xuni batch', data)),
-          map(data => ['1', data])
-        )
-      )
+      const batchedBlocks$ = blocks$.pipe(
+        map(([req, res, data]) => {
+          res.writeHead(200, {'Content-Type': 'application/json'});
+          res.end(JSON.stringify({status: 'accepted'}));
+          return data
+        }),
+        tap((data) => log('block', data)),
+        // bufferTime(10_000),
+        bufferCount(Number(BATCH_SIZE)),
+        // bufferTime(10_000, null, Number(BATCH_SIZE)),
+        map(data => ['0', data])
+      );
+      const batchedXunis$ = xunis$.pipe(
+        map(([req, res, data]) => {
+          res.writeHead(200, {'Content-Type': 'application/json'});
+          res.end(JSON.stringify({status: 'accepted'}));
+          return data
+        }),
+        tap((data) => log('xuni', data)),
+        bufferCount(Number(BATCH_SIZE)),
+        // bufferTime(10_000, null, Number(BATCH_SIZE)),
+        map(data => ['1', data])
+      );
+      return merge(batchedBlocks$, batchedXunis$)
     })
   ).subscribe(async ([type, data]) => {
     console.log(data)
