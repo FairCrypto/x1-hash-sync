@@ -60,10 +60,10 @@ fromEvent(server, 'request')
             // console.log(data)
             return data
           }),
-          tap((data) => log('block', data)),
-          bufferCount(1),
+          // tap((data) => log('block', data)),
+          bufferCount(5),
           tap((data) => log('batch', data)),
-          mergeMap(data => processNewHashBatch(data, contract))
+          // mergeMap(data => processNewHashBatch(data, contract))
         ),
         xunis.pipe(
           // tap(([req, res, data]) => log('xuni', data)),
@@ -73,9 +73,9 @@ fromEvent(server, 'request')
             // console.log(data)
             return data
           }),
-          tap((data) => log('xuni', data)),
           bufferCount(1),
-          mergeMap(data => processHashBatch(data, contract, wallet.address))
+          tap((data) => log('xuni batch', data)),
+          // mergeMap(data => processHashBatch(data, contract, wallet.address))
         )
       )
     })
