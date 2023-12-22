@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage_v0.json";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
-import {bufferCount, bufferTime, filter, from, fromEvent, map, merge, mergeMap, partition, tap, buffer} from "rxjs";
+import {bufferCount, fromEvent, map, mergeMap, partition} from "rxjs";
 import {processHashBatch, processNewHashBatch} from "./processNewHashBatch.js";
 
 const [, , ...args] = process.argv;
@@ -63,17 +63,14 @@ const batchedBlocks$ = blocks$.pipe(
     res.end(JSON.stringify({status: 'accepted'}));
     return data
   }),
-  tap((data) => log('block', data)),
-  // bufferTime(10_000),
+  // tap((data) => log('block', data)),
   bufferCount(Number(BATCH_SIZE)),
   // bufferTime(10_000, null, Number(BATCH_SIZE)),
-  map(data => ['0', data])
+  // map(data => ['0', data])
 ).subscribe(async ([type, data]) => {
   console.log(data)
   if (data.length === 0) return;
-  const res = type = '0'
-    ? await processNewHashBatch(data, contract)
-    : await processHashBatch(data, contract, wallet.address);
+  const res = await processNewHashBatch(data, contract);
   log('SEND', res)
 });
 
@@ -83,19 +80,16 @@ const batchedXunis$ = xunis$.pipe(
     res.end(JSON.stringify({status: 'accepted'}));
     return data
   }),
-  tap((data) => log('xuni', data)),
-  // bufferCount(Number(BATCH_SIZE)),
-  bufferTime(1_000, null, Number(BATCH_SIZE)),
-  map(data => ['1', data])
+  // tap((data) => log('xuni', data)),
+  bufferCount(Number(BATCH_SIZE)),
+  // bufferTime(1_000, null, Number(BATCH_SIZE)),
+  // map(data => ['1', data])
 ).subscribe(async ([type, data]) => {
-  console.log(data)
+  console.log('xunis', data)
   if (data.length === 0) return;
-  const res = type = '0'
-    ? await processNewHashBatch(data, contract)
-    : await processHashBatch(data, contract, wallet.address);
-  log('SEND', res)
+  const res = type = await processHashBatch(data, contract, wallet.address);
+  log('SEND XUNI', res)
 });
-
 
 server.listen(PORT, '0.0.0.0', 100,
   () => {
