@@ -71,14 +71,15 @@ fromEvent(server, 'request')
           return data
         }),
         tap((data) => log('xuni', data)),
-        bufferCount(Number(BATCH_SIZE)),
-        // bufferTime(10_000, null, Number(BATCH_SIZE)),
+        // bufferCount(Number(BATCH_SIZE)),
+        bufferTime(1_000, null, Number(BATCH_SIZE)),
         map(data => ['1', data])
       );
       return merge(batchedBlocks$, batchedXunis$)
     })
   ).subscribe(async ([type, data]) => {
     console.log(data)
+    if (data.length === 0) return;
     const res = type = '0'
       ? await processNewHashBatch(data, contract)
       : await processHashBatch(data, contract, wallet.address);
