@@ -76,7 +76,8 @@ fromEvent(server, 'request')
           bufferCount(2),
           tap((data) => log('xuni batch', data)),
           // mergeMap(data => processHashBatch(data, contract, wallet.address))
-        )
+        ),
+        2
       )
     })
   ).subscribe(val => log('SEND', val));
