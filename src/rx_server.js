@@ -64,7 +64,7 @@ fromEvent(server, 'request')
           // bufferTime(10_000),
           // bufferCount(Number(BATCH_SIZE)),
           bufferTime(10_000, null, Number(BATCH_SIZE)),
-          // tap((data) => log('batch', data)),
+          tap((data) => log('batch', data)),
           map(data => ['0', data])
         ),
         xunis$.pipe(
