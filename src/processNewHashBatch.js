@@ -76,7 +76,7 @@ export const processHashBatch = async (hashes, contract, address) => {
     const result = await res.wait(1);
     return result?.status === 1 ? 'OK' : 'FAIL';
   } catch (e) {
-    log('ERR', e?.message);
+    log('ERR', e);
     // throw e;
   }
 }
