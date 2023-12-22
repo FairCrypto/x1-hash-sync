@@ -53,8 +53,8 @@ fromEvent(server, 'request')
         records$,
         ([req, res, data]) => data.type === '0');
       //return merge(
-      return mergeMap(records$.pipe(
-          map(([req, res, data]) => {
+      return records$.pipe(
+          mergeMap(([req, res, data]) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
             // console.log(data)
@@ -65,7 +65,7 @@ fromEvent(server, 'request')
           bufferCount(Number(BATCH_SIZE)),
           tap((data) => log('batch', data)),
           map(data => ['0', data])
-        ))
+        )
         /*
         xunis.pipe(
           // tap(([req, res, data]) => log('xuni', data)),
