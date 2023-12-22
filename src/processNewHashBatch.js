@@ -38,6 +38,7 @@ export const processNewHashBatch = async (hashes, contract) => {
         },
         [[], [], []]
       );
+    console.log(params)
 
     const gas = await contract.bulkStoreNewRecords.estimateGas(params[0], params[2]);
     const res = await contract.bulkStoreNewRecords(params[0], params[2], {
