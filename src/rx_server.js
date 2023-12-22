@@ -43,7 +43,7 @@ const server = http.createServer();
 
 subscribe = fromEvent(server, 'request')
   .pipe(
-    mergeMap(([req, res]) => {
+    map(([req, res]) => {
       const records$ = fromEvent(req, 'data')
         .pipe(
           map((chunk) => chunk.toString()),
