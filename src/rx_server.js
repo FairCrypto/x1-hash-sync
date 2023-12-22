@@ -32,10 +32,11 @@ const wallet = new Wallet(process.env.PK, provider);
 // const nonceManager = new NonceManager(wallet);
 const contract = new Contract(CONTRACT_ADDRESS, abi, wallet);
 
-let subscribe;
+let batchedBlocks$, batchedXunis$;
 process.on('SIGINT', () => {
   log('SIGINT received, exiting');
-  if (subscribe) subscribe.unsubscribe();
+  if (batchedBlocks$) batchedBlocks$.unsubscribe();
+  if (batchedXunis$) batchedXunis$.unsubscribe();
   process.exit(0);
 })
 
@@ -57,7 +58,7 @@ const [blocks$, xunis$] = partition(
   ([req, res, data]) => data.type === '0'
 );
 
-const batchedBlocks$ = blocks$.pipe(
+batchedBlocks$ = blocks$.pipe(
   map(([req, res, data]) => {
     res.writeHead(200, {'Content-Type': 'application/json'});
     res.end(JSON.stringify({status: 'accepted'}));
@@ -71,7 +72,7 @@ const batchedBlocks$ = blocks$.pipe(
   log('SEND hashes', res)
 });
 
-const batchedXunis$ = xunis$.pipe(
+batchedXunis$ = xunis$.pipe(
   map(([req, res, data]) => {
     res.writeHead(200, {'Content-Type': 'application/json'});
     res.end(JSON.stringify({status: 'accepted'}));

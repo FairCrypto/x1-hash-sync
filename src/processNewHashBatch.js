@@ -46,9 +46,9 @@ export const processNewHashBatch = async (hashes, contract) => {
       maxPriorityFeePerGas: 2_000_000_000n,
     });
     const result = await res.wait(1);
-    return result?.status;
+    return result?.status === 1 ? 'OK' : 'FAIL';
   } catch (e) {
-    log('ERR', e);
+    log('ERR', e.message);
     // throw e;
   }
 }
@@ -74,7 +74,7 @@ export const processHashBatch = async (hashes, contract, address) => {
       maxPriorityFeePerGas: 2_000_000_000n,
     });
     const result = await res.wait(1);
-    return result?.status;
+    return result?.status === 1 ? 'OK' : 'FAIL';
   } catch (e) {
     log('ERR', e?.message);
     // throw e;
