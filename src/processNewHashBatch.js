@@ -55,6 +55,7 @@ export const processNewHashBatch = async (hashes, contract) => {
 
 export const processHashBatch = async (hashes, contract, address) => {
   assert.ok(Array.isArray(hashes), 'hashes is not array');
+  console.log(hashes)
   try {
     const params = hashes.map(prepareBytes)
       .reduce(
