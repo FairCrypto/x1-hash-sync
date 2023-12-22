@@ -55,7 +55,6 @@ export const processNewHashBatch = async (hashes, contract) => {
 
 export const processHashBatch = async (hashes, contract, address) => {
   assert.ok(Array.isArray(hashes), 'hashes is not array');
-  console.log(hashes)
   try {
     const params = hashes.map(prepareBytes)
       .reduce(
@@ -67,6 +66,7 @@ export const processHashBatch = async (hashes, contract, address) => {
         },
         [[], [], []]
       );
+    console.log(params)
 
     const gas = await contract.bulkStoreRecordBytes.estimateGas(address, params[1], params[2]);
     const res = await contract.bulkStoreRecordBytes(address, params[1], params[2], {
