@@ -61,10 +61,12 @@ fromEvent(server, 'request')
             return data
           }),
           // tap((data) => log('block', data)),
-          bufferTime(10_000),
+          // bufferTime(10_000),
+          bufferCount(Number(BATCH_SIZE)),
           tap((data) => log('batch', data)),
           map(data => ['0', data])
         ),
+        /*
         xunis.pipe(
           // tap(([req, res, data]) => log('xuni', data)),
           map(([req, res, data]) => {
@@ -79,6 +81,7 @@ fromEvent(server, 'request')
           map(data => ['1', data])
         ),
         2
+         */
       )
     })
   ).subscribe(async ([type, data]) => {
