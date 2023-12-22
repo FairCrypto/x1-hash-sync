@@ -63,7 +63,7 @@ fromEvent(server, 'request')
           // tap((data) => log('block', data)),
           bufferCount(1),
           tap((data) => log('batch', data)),
-          mergeMap(data => processNewHashBatch(data, contract))
+          map(data => ['0', data])
         ),
         xunis.pipe(
           // tap(([req, res, data]) => log('xuni', data)),
@@ -75,12 +75,17 @@ fromEvent(server, 'request')
           }),
           bufferCount(1),
           tap((data) => log('xuni batch', data)),
-          mergeMap(data => processHashBatch(data, contract, wallet.address))
+          map(data => ['1', data])
         ),
         2
       )
     })
-  ).subscribe(val => log('SEND', val));
+  ).subscribe(async ([type, data]) => {
+    const res = type = '0'
+      ? await processNewHashBatch(data, contract)
+      : await processHashBatch(data, contract, wallet.address);
+    log('SEND', res)
+});
 
 
 server.listen(PORT, '0.0.0.0', 100,
