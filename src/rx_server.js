@@ -49,9 +49,9 @@ fromEvent(server, 'request')
           map((chunk) => chunk.toString()),
           map((body) => [req, res, JSON.parse(body)])
         );
-      const [blocks, xunis] = partition(
-        records$,
-        ([req, res, data]) => data.type === '0');
+      //const [blocks, xunis] = partition(
+      //  records$,
+      //  ([req, res, data]) => data.type === '0');
       //return merge(
       return records$.pipe(
           map(([req, res, data]) => {
