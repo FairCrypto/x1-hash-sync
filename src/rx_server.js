@@ -60,7 +60,7 @@ subscribe = fromEvent(server, 'request')
             // console.log(data)
             return data
           }),
-          // tap((data) => log('block', data)),
+          tap((data) => log('block', data)),
           bufferCount(Number(BATCH_SIZE)),
           // tap((data) => log('batch', data)),
           // mergeMap(data => from(processNewHashBatch(data, contract)))
@@ -73,6 +73,7 @@ subscribe = fromEvent(server, 'request')
             // console.log(data)
             return data
           }),
+          tap((data) => log('xuni', data)),
           bufferCount(Number(BATCH_SIZE)),
           // mergeMap(data => from(processHashBatch(data, contract, wallet.address)))
         )
