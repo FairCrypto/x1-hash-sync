@@ -61,9 +61,9 @@ fromEvent(server, 'request')
             return data
           }),
           tap((data) => log('block', data)),
-          // bufferCount(Number(BATCH_SIZE)),
-          // tap((data) => log('batch', data)),
-          mergeMap(data => from(processNewHashBatch([data], contract)))
+          bufferCount(1),
+          tap((data) => log('batch', data)),
+          // mergeMap(data => from(processNewHashBatch(data, contract)))
         ),
         xunis.pipe(
           // tap(([req, res, data]) => log('xuni', data)),
