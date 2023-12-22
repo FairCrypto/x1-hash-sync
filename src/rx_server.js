@@ -61,7 +61,7 @@ fromEvent(server, 'request')
             return data
           }),
           // tap((data) => log('block', data)),
-          bufferCount(5),
+          bufferCount(1),
           tap((data) => log('batch', data)),
           // mergeMap(data => processNewHashBatch(data, contract))
         ),
@@ -73,7 +73,7 @@ fromEvent(server, 'request')
             // console.log(data)
             return data
           }),
-          bufferCount(1),
+          bufferCount(5),
           tap((data) => log('xuni batch', data)),
           // mergeMap(data => processHashBatch(data, contract, wallet.address))
         )
