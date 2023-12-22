@@ -52,8 +52,8 @@ fromEvent(server, 'request')
       const [blocks, xunis] = partition(
         records$,
         ([req, res, data]) => data.type === '0');
-      return merge(
-        blocks.pipe(
+      //return merge(
+      return blocks.pipe(
           map(([req, res, data]) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
@@ -65,7 +65,7 @@ fromEvent(server, 'request')
           bufferCount(Number(BATCH_SIZE)),
           tap((data) => log('batch', data)),
           map(data => ['0', data])
-        ),
+        )
         /*
         xunis.pipe(
           // tap(([req, res, data]) => log('xuni', data)),
@@ -82,7 +82,7 @@ fromEvent(server, 'request')
         ),
         2
          */
-      )
+      //)
     })
   ).subscribe(async ([type, data]) => {
     const res = type = '0'
