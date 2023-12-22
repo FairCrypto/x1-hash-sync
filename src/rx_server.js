@@ -54,13 +54,13 @@ fromEvent(server, 'request')
         ([req, res, data]) => data.type === '0');
       //return merge(
       return records$.pipe(
-          mergeMap(([req, res, data]) => {
+          map(([req, res, data]) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
             // console.log(data)
             return data
           }),
-          // tap((data) => log('block', data)),
+          tap((data) => log('block', data)),
           // bufferTime(10_000),
           bufferCount(Number(BATCH_SIZE)),
           tap((data) => log('batch', data)),
