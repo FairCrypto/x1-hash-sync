@@ -60,8 +60,9 @@ fromEvent(server, 'request')
             // console.log(data)
             return data
           }),
-          tap((data) => log('block', data)),
+          // tap((data) => log('block', data)),
           // bufferTime(10_000),
+          // bufferCount(Number(BATCH_SIZE)),
           bufferCount(Number(BATCH_SIZE)),
           tap((data) => log('batch', data)),
           map(data => ['0', data])
