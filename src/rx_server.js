@@ -61,7 +61,7 @@ fromEvent(server, 'request')
             return data
           }),
           tap((data) => log('block', data)),
-          // bufferCount(Number(BATCH_SIZE)),
+          bufferCount(Number(BATCH_SIZE)),
           tap((data) => log('batch', data)),
           // mergeMap(data => from(processNewHashBatch(data, contract)))
         ),
