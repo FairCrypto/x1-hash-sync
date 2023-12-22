@@ -53,7 +53,7 @@ fromEvent(server, 'request')
         records$,
         ([req, res, data]) => data.type === '0');
       //return merge(
-      return blocks.pipe(
+      return records$.pipe(
           map(([req, res, data]) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({status: 'accepted'}));
