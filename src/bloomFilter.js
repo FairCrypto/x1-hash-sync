@@ -12,7 +12,7 @@ console.log(Filters.BloomFilter);
 
 // Expected number of items in the collection
 // n = (m * ln(2))/k;
-const n = 2 ** 40;
+const n = 2 ** 32 - 1;
 
 // Acceptable false-positive rate (0.01 = 1%)
 // p = e^(-(m/n) * (ln(2)^2));
