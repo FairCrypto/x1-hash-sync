@@ -32,15 +32,15 @@ export const initBloomFilter = (jsonStr) => {
   if (jsonStr) {
     try {
       const json = JSON.parse(jsonStr);
-      bloomFilter = BloomFilter.fromJSON(json)
+      bloomFilter = Filters.BloomFilter.fromJSON(json)
       console.log('BloomFilter loaded');
     } catch (e) {
       console.error('BloomFilter loading error', e);
-      bloomFilter = new BloomFilter(m, k);
+      bloomFilter = new Filters.BloomFilter(m, k);
       console.log('init BloomFilter');
     }
   } else {
-    bloomFilter = new BloomFilter(m, k);
+    bloomFilter = new Filters.BloomFilter(m, k);
     console.log('init BloomFilter');
   }
   return bloomFilter;
