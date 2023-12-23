@@ -1,4 +1,4 @@
-import * as BF from 'bloom-filters';
+import {BloomFilter} from 'bloom-filters';
 
 // source: https://gist.github.com/brandt/8f9ab3ceae37562a2841
 // Optimal bloom filter size and number of hashes
@@ -30,15 +30,15 @@ export const initBloomFilter = (jsonStr) => {
   if (jsonStr) {
     try {
       const json = JSON.parse(jsonStr);
-      bloomFilter = BF.BloomFilter.fromJSON(json)
+      bloomFilter = BloomFilter.fromJSON(json)
       console.log('BloomFilter loaded');
     } catch (e) {
       console.error('BloomFilter loading error', e);
-      bloomFilter = new BF.BloomFilter(m, k);
+      bloomFilter = new BloomFilter(m, k);
       console.log('init BloomFilter');
     }
   } else {
-    bloomFilter = new BF.BloomFilter(m, k);
+    bloomFilter = new BloomFilter(m, k);
     console.log('init BloomFilter');
   }
   return bloomFilter;
