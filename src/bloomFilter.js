@@ -1,4 +1,6 @@
-import {BloomFilter} from 'bloom-filters';
+// import {BloomFilter} from 'bloom-filters';
+import BF from 'bloom-filters';
+console.log(BF);
 
 // source: https://gist.github.com/brandt/8f9ab3ceae37562a2841
 // Optimal bloom filter size and number of hashes
