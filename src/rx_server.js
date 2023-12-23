@@ -3,8 +3,11 @@ import dotenv from "dotenv";
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage_v0.json";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
-import {bufferCount, fromEvent, map, mergeMap, partition} from "rxjs";
+import {bufferCount, filter, fromEvent, map, mergeMap, partition} from "rxjs";
 import {processHashBatch, processNewHashBatch} from "./processNewHashBatch.js";
+import {initBloomFilter} from "./bloomFilter.js";
+import path from "path";
+import * as fs from "fs";
 
 const [, , ...args] = process.argv;
 
@@ -33,10 +36,27 @@ const wallet = new Wallet(process.env.PK, provider);
 const contract = new Contract(CONTRACT_ADDRESS, abi, wallet);
 
 let batchedBlocks$, batchedXunis$;
+let bloomFilter;
+
+if (fs.existsSync(path.resolve('.', 'bloom.json'))) {
+  const jsonStr = fs.readFileSync(path.resolve('.', 'bloom.json'), 'utf8');
+  bloomFilter = initBloomFilter(jsonStr);
+  log('loaded bloom filter');
+} else {
+  bloomFilter = initBloomFilter();
+  log('initialized bloom filter');
+}
+
 process.on('SIGINT', () => {
   log('SIGINT received, exiting');
   if (batchedBlocks$) batchedBlocks$.unsubscribe();
   if (batchedXunis$) batchedXunis$.unsubscribe();
+  if (bloomFilter) {
+    const json = bloomFilter.saveAsJSON();
+    const jsonStr = JSON.stringify(json);
+    fs.writeFileSync(path.resolve('.', 'bloom.json', jsonStr), 'utf8');
+    log('saved bloom filter');
+  }
   process.exit(0);
 })
 
@@ -54,7 +74,17 @@ const records$ = fromEvent(server, 'request')
   );
 
 const [blocks$, xunis$] = partition(
-  records$,
+  records$.pipe(filter(([req, res, data]) => {
+    const hasKey = bloomFilter.has(data.key);
+    if (!hasKey) {
+      log('new key', data.key);
+      bloomFilter.add(data.key);
+      return true;
+    } else {
+      log('duplicate key', data.key);
+      return false;
+    }
+  })),
   ([req, res, data]) => data.type === '0'
 );
 
