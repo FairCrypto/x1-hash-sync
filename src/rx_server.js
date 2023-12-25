@@ -77,7 +77,7 @@ const records$ = fromEvent(server, 'request')
 
 const [blocks$, xunis$] = partition(
   records$.pipe(filter(async ([req, res, data]) => {
-    const hasKey = data && await bloomFilter.has(data?.key);
+    const hasKey = data?.key && await bloomFilter.has(data?.key);
     if (!hasKey && data?.key) {
       // log('new key', data.key);
       bloomFilter.add(data?.key);
