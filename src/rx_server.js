@@ -64,6 +64,7 @@ const server = http.createServer();
 
 const records$ = fromEvent(server, 'request')
   .pipe(
+    filter(([req, res]) => req.method?.toLowerCase() === 'post'),
     mergeMap(([req, res]) => {
       return fromEvent(req, 'data')
         .pipe(
@@ -75,6 +76,7 @@ const records$ = fromEvent(server, 'request')
 
 const [blocks$, xunis$] = partition(
   records$.pipe(filter(async ([req, res, data]) => {
+    if (!data.key && !data.hash_to_verify && !data.account) return false;
     const hasKey = await bloomFilter.has(data.key);
     if (!hasKey) {
       // log('new key', data.key);
