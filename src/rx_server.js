@@ -64,7 +64,7 @@ const server = http.createServer();
 
 const records$ = fromEvent(server, 'request')
   .pipe(
-    tap(([req, res]) => log('request', req.method, req.url)),
+    // tap(([req, res]) => log('request', req.method, req.url)),
     filter(([req, res]) => req.method?.toLowerCase() === 'post'),
     mergeMap(([req, res]) => {
       return fromEvent(req, 'data')
@@ -77,18 +77,17 @@ const records$ = fromEvent(server, 'request')
 
 const [blocks$, xunis$] = partition(
   records$.pipe(filter(async ([req, res, data]) => {
-    if (!data.key && !data.hash_to_verify && !data.account) return false;
-    const hasKey = await bloomFilter.has(data.key);
+    const hasKey = await bloomFilter.has(data?.key);
     if (!hasKey) {
       // log('new key', data.key);
-      bloomFilter.add(data.key);
+      bloomFilter.add(data?.key);
       return true;
     } else {
-      log('duplicate key', data.key);
+      log('duplicate key', data?.key);
       return false;
     }
   })),
-  ([req, res, data]) => data.type === '0'
+  ([req, res, data]) => data?.type === '0'
 );
 
 batchedBlocks$ = blocks$.pipe(
@@ -98,11 +97,18 @@ batchedBlocks$ = blocks$.pipe(
     return data
   }),
   bufferCount(Number(BATCH_SIZE)),
-).subscribe(async (data) => {
-  log('hashes', data.length)
-  if (data.length === 0) return;
-  const res = await processNewHashBatch(data, contract);
-  log('SEND hashes', res)
+  mergeMap(async (data) => {
+    log('blocks', data.length)
+    if (data.length === 0) return;
+    const res = await processNewHashBatch(data, contract);
+    // log('SEND blocks', res)
+    return res;
+  })
+).subscribe( (data) => {
+  // log('hashes', data.length)
+  // if (data.length === 0) return;
+  // const res = await processNewHashBatch(data, contract);
+  log('SEND hashes', data)
 });
 
 batchedXunis$ = xunis$.pipe(
@@ -112,11 +118,18 @@ batchedXunis$ = xunis$.pipe(
     return data
   }),
   bufferCount(Number(BATCH_SIZE)),
-).subscribe(async (data) => {
-  log('xunis', data.length)
-  if (data.length === 0) return;
-  const res = await processHashBatch(data, contract, wallet.address);
-  log('SEND xunis', res)
+  mergeMap(async (data) => {
+    log('xunis', data.length)
+    if (data.length === 0) return;
+    const res = await processHashBatch(data, contract, wallet.address);
+    // log('SEND xunis', res)
+    return res;
+  })
+).subscribe( (data) => {
+ //  log('xunis', data.length)
+  // if (data.length === 0) return;
+  // const res = await processHashBatch(data, contract, wallet.address);
+  log('SEND xunis', data)
 });
 
 server.listen(PORT, '0.0.0.0', 100,
