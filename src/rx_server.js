@@ -50,10 +50,14 @@ if (fs.existsSync(path.resolve('.', 'bloom.json'))) {
 process.on('SIGINT', () => {
   log('SIGINT received, exiting');
   if (batchedBlocks$) batchedBlocks$.unsubscribe();
+  log('unsubscribed from blocks')
   if (batchedXunis$) batchedXunis$.unsubscribe();
+  log('unsubscribed from xunis')
   if (bloomFilter) {
     const json = bloomFilter.saveAsJSON();
+    log('prepping bloom filter');
     const jsonStr = JSON.stringify(json);
+    log('writing bloom filter', jsonStr?.length);
     fs.writeFileSync(path.resolve('.', 'bloom.json', jsonStr), 'utf8');
     log('saved bloom filter');
   }
