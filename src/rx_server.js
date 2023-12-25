@@ -68,13 +68,18 @@ const records$ = fromEvent(server, 'request')
       return fromEvent(req, 'data')
         .pipe(
           map((chunk) => chunk.toString()),
-          map((body) => [req, res, JSON.parse(body)])
+          map((body) => [req, res, JSON.parse(body)]),
+          map(([req, res, data]) => {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            res.end(JSON.stringify({status: 'accepted'}));
+            return data
+          }),
         )
     })
   );
 
 const [blocks$, xunis$] = partition(
-  records$.pipe(filter(async ([req, res, data]) => {
+  records$.pipe(filter(async (data) => {
     const hasKey = await bloomFilter.has(data.key);
     if (!hasKey) {
       // log('new key', data.key);
@@ -85,15 +90,10 @@ const [blocks$, xunis$] = partition(
       return false;
     }
   })),
-  ([req, res, data]) => data.type === '0'
+  (data) => data.type === '0'
 );
 
 batchedBlocks$ = blocks$.pipe(
-  map(([req, res, data]) => {
-    res.writeHead(200, {'Content-Type': 'application/json'});
-    res.end(JSON.stringify({status: 'accepted'}));
-    return data
-  }),
   bufferCount(Number(BATCH_SIZE)),
 ).subscribe(async (data) => {
   log('hashes', data.length)
