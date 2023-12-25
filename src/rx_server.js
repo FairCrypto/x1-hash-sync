@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import debug from "debug";
 import BlockStorage from "../abi/BlockStorage_v0.json";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
-import {bufferCount, filter, fromEvent, map, mergeMap, partition} from "rxjs";
+import {bufferCount, filter, fromEvent, map, mergeMap, partition, tap} from "rxjs";
 import {processHashBatch, processNewHashBatch} from "./processNewHashBatch.js";
 import {initBloomFilter} from "./bloomFilter.js";
 import path from "path";
@@ -64,6 +64,7 @@ const server = http.createServer();
 
 const records$ = fromEvent(server, 'request')
   .pipe(
+    tap(([req, res]) => log('request', req.method, req.url)),
     filter(([req, res]) => req.method?.toLowerCase() === 'post'),
     mergeMap(([req, res]) => {
       return fromEvent(req, 'data')
