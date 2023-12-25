@@ -96,6 +96,7 @@ batchedBlocks$ = blocks$.pipe(
     res.end(JSON.stringify({status: 'accepted'}));
     return data
   }),
+  filter(data => data?.type && data?.key && data?.account && data?.hash_to_verify),
   bufferCount(Number(BATCH_SIZE)),
   mergeMap(async (data) => {
     log('blocks', data.length)
@@ -117,6 +118,7 @@ batchedXunis$ = xunis$.pipe(
     res.end(JSON.stringify({status: 'accepted'}));
     return data
   }),
+  filter(data => data?.type && data?.key && data?.account && data?.hash_to_verify),
   bufferCount(Number(BATCH_SIZE)),
   mergeMap(async (data) => {
     log('xunis', data.length)
