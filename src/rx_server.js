@@ -77,11 +77,14 @@ const records$ = fromEvent(server, 'request')
 
 const [blocks$, xunis$] = partition(
   records$.pipe(filter(async ([req, res, data]) => {
-    const hasKey = await bloomFilter.has(data?.key);
-    if (!hasKey) {
+    const hasKey = data && await bloomFilter.has(data?.key);
+    if (!hasKey && data?.key) {
       // log('new key', data.key);
       bloomFilter.add(data?.key);
       return true;
+    } else if (!data?.key) {
+      log('no key', data?.key);
+      return false;
     } else {
       log('duplicate key', data?.key);
       return false;
