@@ -103,11 +103,6 @@ batchedBlocks$ = blocks$.pipe(
 });
 
 batchedXunis$ = xunis$.pipe(
-  map(([req, res, data]) => {
-    res.writeHead(200, {'Content-Type': 'application/json'});
-    res.end(JSON.stringify({status: 'accepted'}));
-    return data
-  }),
   bufferCount(Number(BATCH_SIZE)),
 ).subscribe(async (data) => {
   log('xunis', data.length)
