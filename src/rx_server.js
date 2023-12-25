@@ -112,6 +112,9 @@ batchedBlocks$ = blocks$.pipe(
   // log('hashes', data.length)
   // if (data.length === 0) return;
   // const res = await processNewHashBatch(data, contract);
+  server.getConnections((err, count) => {
+    log('connections', count)
+  })
   log('SEND hashes', data)
 });
 
@@ -134,6 +137,9 @@ batchedXunis$ = xunis$.pipe(
  //  log('xunis', data.length)
   // if (data.length === 0) return;
   // const res = await processHashBatch(data, contract, wallet.address);
+  server.getConnections((err, count) => {
+    log('connections', count)
+  })
   log('SEND xunis', data)
 });
 
