@@ -40,7 +40,7 @@ export const initBloomFilter = (jsonStr) => {
     }
   } else {
     bloomFilter = new Filters.BloomFilter(m, k);
-    console.log('init BloomFilter');
+    console.log('init BloomFilter', m, k);
   }
   return bloomFilter;
 }
