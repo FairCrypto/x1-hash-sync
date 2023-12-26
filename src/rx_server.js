@@ -68,7 +68,6 @@ const server = http.createServer();
 
 const records$ = fromEvent(server, 'request')
   .pipe(
-    // tap(([req, res]) => log('request', req.method, req.url)),
     filter(([req, res]) => req.method?.toLowerCase() === 'post'),
     mergeMap(([req, res]) => {
       return fromEvent(req, 'data')
@@ -83,7 +82,6 @@ const [blocks$, xunis$] = partition(
   records$.pipe(filter(async ([req, res, data]) => {
     const hasKey = data?.key && await bloomFilter.has(data?.key);
     if (!hasKey && data?.key) {
-      // log('new key', data.key);
       bloomFilter.add(data?.key);
       return true;
     } else if (!data?.key) {
@@ -105,19 +103,14 @@ batchedBlocks$ = blocks$.pipe(
   }),
   filter(data => data?.type && data?.key && data?.account && data?.hash_to_verify),
   bufferCount(Number(BATCH_SIZE)),
-  mergeMap(async (data) => {
+  mergeMap( (data) => {
     log('blocks', data.length)
     if (data.length === 0) return;
-    const res = await processNewHashBatch(data, contract);
-    // log('SEND blocks', res)
-    return res;
+    return processNewHashBatch(data, contract);
   })
 ).subscribe( (data) => {
-  // log('hashes', data.length)
-  // if (data.length === 0) return;
-  // const res = await processNewHashBatch(data, contract);
   server.getConnections((err, count) => {
-    log('connections', count)
+    log('connections', count, 'bloom', bloomFilter.length())
   })
   log('SEND hashes', data)
 });
@@ -130,19 +123,14 @@ batchedXunis$ = xunis$.pipe(
   }),
   filter(data => data?.type && data?.key && data?.account && data?.hash_to_verify),
   bufferCount(Number(BATCH_SIZE)),
-  mergeMap(async (data) => {
+  mergeMap( (data) => {
     log('xunis', data.length)
     if (data.length === 0) return;
-    const res = await processHashBatch(data, contract, wallet.address);
-    // log('SEND xunis', res)
-    return res;
+    return  processHashBatch(data, contract, wallet.address);
   })
 ).subscribe( (data) => {
- //  log('xunis', data.length)
-  // if (data.length === 0) return;
-  // const res = await processHashBatch(data, contract, wallet.address);
   server.getConnections((err, count) => {
-    log('connections', count)
+    log('connections', count, 'bloom', bloomFilter.length())
   })
   log('SEND xunis', data)
 });
