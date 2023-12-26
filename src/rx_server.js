@@ -110,7 +110,7 @@ batchedBlocks$ = blocks$.pipe(
   })
 ).subscribe( (data) => {
   server.getConnections((err, count) => {
-    log('connections', count, 'bloom', bloomFilter.length())
+    log('connections', count, 'bloom', bloomFilter.length)
   })
   log('SEND hashes', data)
 });
@@ -130,7 +130,7 @@ batchedXunis$ = xunis$.pipe(
   })
 ).subscribe( (data) => {
   server.getConnections((err, count) => {
-    log('connections', count, 'bloom', bloomFilter.length())
+    log('connections', count, 'bloom', bloomFilter.length)
   })
   log('SEND xunis', data)
 });
