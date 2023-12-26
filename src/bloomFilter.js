@@ -15,7 +15,7 @@ const n = 2 ** 31 - 1;
 
 // Acceptable false-positive rate (0.01 = 1%)
 // p = e^(-(m/n) * (ln(2)^2));
-const fpr = 0.01;
+const fpr = 0.1;
 
 // Optimal size (number of elements in the bit array)
 // m = -((n*ln(p))/(ln(2)^2));
