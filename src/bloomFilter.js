@@ -11,7 +11,7 @@ import Filters from 'bloom-filters';
 
 // Expected number of items in the collection
 // n = (m * ln(2))/k;
-const n = 2 ** 31 - 1;
+const n = 2 ** 16 - 1;
 
 // Acceptable false-positive rate (0.01 = 1%)
 // p = e^(-(m/n) * (ln(2)^2));
