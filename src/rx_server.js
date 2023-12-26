@@ -58,7 +58,7 @@ process.on('SIGINT', () => {
     log('prepping bloom filter');
     const jsonStr = JSON.stringify(json);
     log('writing bloom filter', jsonStr?.length);
-    fs.writeFileSync(path.resolve('.', 'bloom.json', jsonStr), 'utf8');
+    fs.writeFileSync(path.resolve('.', 'bloom.json'), jsonStr, 'utf8');
     log('saved bloom filter');
   }
   process.exit(0);
