@@ -1,4 +1,4 @@
-import BlockStorage from "./BlockStorage.json";
+import BlockStorage from "./BlockStorage_v1.json";
 import {Contract, JsonRpcProvider} from "ethers";
 import dotenv from "dotenv";
 

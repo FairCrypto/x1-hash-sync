@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import debug from "debug";
-import BlockStorage from "../abi/BlockStorage.json" assert { type: "json" };
+import BlockStorage from "../abi/BlockStorage_v1.json" assert { type: "json" };
 import rx, {delay, distinctUntilChanged, from, map, Observable, retry, retryWhen, take, tap} from "rxjs";
 import {processHash} from "./processHash.js";
 

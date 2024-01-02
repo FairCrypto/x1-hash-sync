@@ -5,7 +5,7 @@ import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import debug from "debug";
 import assert from "assert";
-import BlockStorage from "../abi/BlockStorage.json" assert { type: "json" };
+import BlockStorage from "../abi/BlockStorage_v1.json" assert { type: "json" };
 
 const [,, ...args] = process.argv;
 

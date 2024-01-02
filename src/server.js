@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from "dotenv";
 import debug from "debug";
-import BlockStorage from "../abi/BlockStorage.json";
+import BlockStorage from "../abi/BlockStorage_v1.json";
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
 import {processHash} from "./processHash.js";
 
