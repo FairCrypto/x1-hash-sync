@@ -15,13 +15,15 @@ const prepareBytes = (hash) => {
   const m = m0.split('=')[1];
   const t = t0.split('=')[1];
   const c = p0.split('=')[1];
-  const s = Buffer.from(s64, 'base64');
-  const k = Buffer.from(key, 'hex').slice(0, 32);
+  let s = Buffer.from(s64, 'base64');
+  let k = Buffer.from(key, 'hex').slice(0, 32);
   const accountNormalized = getAddress(account);
   assert.ok(isAddress(accountNormalized), 'account is not valid: ' + accountNormalized);
   const bytes = solidityPacked(
     ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
     [c, m, t, v, k, s]);
+  s = null;
+  k = null;
   return [accountNormalized, block_id, bytes];
 }
 
@@ -34,6 +36,7 @@ export const processNewHashBatch = async (hashes, contract) => {
           acc[0].push(value1);
           acc[1].push(value2);
           acc[2].push(value3);
+          value3 = null;
           return acc;
         },
         [[], [], []]
