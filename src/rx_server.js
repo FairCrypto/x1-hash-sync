@@ -37,6 +37,7 @@ const contract = new Contract(CONTRACT_ADDRESS, abi, wallet);
 
 let batchedBlocks$, batchedXunis$;
 let bloomFilter;
+let rss0, heapTotal0, heapUsed0, external0, arrayBuffers0
 
 if (fs.existsSync(path.resolve('.', 'bloom.json'))) {
   const jsonStr = fs.readFileSync(path.resolve('.', 'bloom.json'), 'utf8');
@@ -88,8 +89,20 @@ const [blocks$, xunis$] = partition(
       log('no key', data?.key);
       return false;
     } else {
+      const { rss, heapTotal, heapUsed, external, arrayBuffers } = process.memoryUsage();
+      rss0 = rss0 || rss;
+      heapTotal0 = heapTotal0 || heapTotal;
+      heapUsed0 = heapUsed0 || heapUsed;
+      external0 = external0 || external;
+      arrayBuffers0 = arrayBuffers0 || arrayBuffers;
       log('duplicate key', data?.key, bloomFilter.length);
-      log(process.memoryUsage());
+      log(
+        'rss', rss/rss0.toFixed(2),
+        'ht', heapTotal/heapTotal0.toFixed(2),
+        'hu', heapUsed/heapUsed0.toFixed(2),
+        'ext', external/external0.toFixed(2),
+        'ab', arrayBuffers/arrayBuffers0.toFixed(2)
+      );
       return false;
     }
   })),
