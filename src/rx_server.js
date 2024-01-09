@@ -97,7 +97,7 @@ const [blocks$, xunis$] = partition(
       arrayBuffers0 = arrayBuffers0 || arrayBuffers;
       log('duplicate key', data?.key, bloomFilter.length);
       log(
-        'rss', rss/rss0.toFixed(2),
+        'rss', (rss/rss0).toFixed(2),
         'ht', (heapTotal/heapTotal0).toFixed(2),
         'hu', (heapUsed/heapUsed0).toFixed(2),
         'ext', (external/external0).toFixed(2),
