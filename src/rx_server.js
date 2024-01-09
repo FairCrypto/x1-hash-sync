@@ -98,10 +98,10 @@ const [blocks$, xunis$] = partition(
       log('duplicate key', data?.key, bloomFilter.length);
       log(
         'rss', rss/rss0.toFixed(2),
-        'ht', heapTotal/heapTotal0.toFixed(2),
-        'hu', heapUsed/heapUsed0.toFixed(2),
-        'ext', external/external0.toFixed(2),
-        'ab', arrayBuffers/arrayBuffers0.toFixed(2)
+        'ht', (heapTotal/heapTotal0).toFixed(2),
+        'hu', (heapUsed/heapUsed0).toFixed(2),
+        'ext', (external/external0).toFixed(2),
+        'ab', (arrayBuffers/arrayBuffers0).toFixed(2)
       );
       return false;
     }
