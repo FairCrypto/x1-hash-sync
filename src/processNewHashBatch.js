@@ -6,7 +6,7 @@ const log = debug('hash-sync', {colors: false});
 
 const prepareBytes = (hash) => {
   const {hash_to_verify, key, account, block_id} = hash;
-  const [, type, v0, mtp, s64, hash64] = hash_to_verify.split('$');
+  const [, type, v0, mtp, s64, ] = hash_to_verify.split('$');
   // log(type, v0, mtp, 's=', s64, 'h=', hash64);
   assert.equal(type, 'argon2id');
   const v = v0.split('=')[1];
@@ -22,6 +22,7 @@ const prepareBytes = (hash) => {
   const bytes = solidityPacked(
     ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
     [c, m, t, v, k, s]);
+  hash = null;
   s = null;
   k = null;
   return [accountNormalized, block_id, bytes];
@@ -36,6 +37,8 @@ export const processNewHashBatch = async (hashes, contract) => {
           acc[0].push(value1);
           acc[1].push(value2);
           acc[2].push(value3);
+          value1 = null;
+          value2 = null;
           value3 = null;
           return acc;
         },
@@ -49,7 +52,8 @@ export const processNewHashBatch = async (hashes, contract) => {
       maxPriorityFeePerGas: 2_000_000_000n,
     });
     const result = await res.wait(1);
-    params.forEach(arr => arr.length = 0);
+    params.forEach(arr => arr.splice(0, arr.length));
+    params.splice(0, params.length);
     return result?.status === 1 ? 'OK' : 'FAIL';
   } catch (e) {
     log('ERR', e.message);
@@ -66,6 +70,8 @@ export const processHashBatch = async (hashes, contract, address) => {
           acc[0].push(value1);
           acc[1].push(value2);
           acc[2].push(value3);
+          value1 = null;
+          value2 = null;
           value3 = null;
           return acc;
         },
@@ -79,7 +85,8 @@ export const processHashBatch = async (hashes, contract, address) => {
       maxPriorityFeePerGas: 2_000_000_000n,
     });
     const result = await res.wait(1);
-    params.forEach(arr => arr.length = 0);
+    params.forEach(arr => arr.splice(0, arr.length));
+    params.splice(0, params.length);
     return result?.status === 1 ? 'OK' : 'FAIL';
   } catch (e) {
     log('ERR', address, e);
