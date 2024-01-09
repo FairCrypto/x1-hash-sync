@@ -49,6 +49,7 @@ export const processNewHashBatch = async (hashes, contract) => {
       maxPriorityFeePerGas: 2_000_000_000n,
     });
     const result = await res.wait(1);
+    params.forEach(arr => arr.length = 0);
     return result?.status === 1 ? 'OK' : 'FAIL';
   } catch (e) {
     log('ERR', e.message);
@@ -65,6 +66,7 @@ export const processHashBatch = async (hashes, contract, address) => {
           acc[0].push(value1);
           acc[1].push(value2);
           acc[2].push(value3);
+          value3 = null;
           return acc;
         },
         [[], [], []]
@@ -77,6 +79,7 @@ export const processHashBatch = async (hashes, contract, address) => {
       maxPriorityFeePerGas: 2_000_000_000n,
     });
     const result = await res.wait(1);
+    params.forEach(arr => arr.length = 0);
     return result?.status === 1 ? 'OK' : 'FAIL';
   } catch (e) {
     log('ERR', address, e);
