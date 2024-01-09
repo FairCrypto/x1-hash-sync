@@ -89,6 +89,7 @@ const [blocks$, xunis$] = partition(
       return false;
     } else {
       log('duplicate key', data?.key, bloomFilter.length);
+      log(process.memoryUsage());
       return false;
     }
   })),
