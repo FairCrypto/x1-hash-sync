@@ -103,7 +103,6 @@ const [blocks$, xunis$] = partition(
         'hu', (heapUsed/heapUsed0).toFixed(2),
         'ext', (external/external0).toFixed(2),
         'ab', (arrayBuffers/arrayBuffers0).toFixed(2),
-        batchedBlocks$
       );
       return false;
     }
