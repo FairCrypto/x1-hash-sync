@@ -56,7 +56,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
     );
     const msg = data[0]?.messages?.[0]?.message;
     const message = { ...msg, hashes: JSON.parse(msg.hashes) };
-    log(message);
+    // log(message);
 
     if (message.type === '0') {
       log('hashes batch', message.hashes.length);
