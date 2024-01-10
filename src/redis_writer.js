@@ -31,6 +31,7 @@ const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
   }).on('error', (err) => console.error('ERR:REDIS:', err));
   redisClient.on('connect', () => log('redis connected'));
   await redisClient.connect();
+  log(redisClient.serverInfo)
 
   process.on('SIGINT', () => {
     log('SIGINT received, exiting');
