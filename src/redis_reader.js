@@ -56,7 +56,7 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
     const data = await redisClient.xRead(
       commandOptions({ isolated: true }), // https://github.com/redis/node-redis/blob/master/docs/isolated-execution.md
       { key: 'x1:hashes', id: '$' },
-      { BLOCK: 0, COUNT: BATCH_SIZE }
+      { BLOCK: 0 }
     );
     // log(data[0].messages)
     hashes.push(...data[0].messages
