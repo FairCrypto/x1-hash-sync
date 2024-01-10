@@ -1,7 +1,7 @@
 import * as http from "http";
 import dotenv from "dotenv";
 import debug from "debug";
-import BlockStorage from "../abi/BlockStorage.json";
+import BlockStorage from "../abi/BlockStorage.json" assert { type: "json" }
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
 import {bufferCount, filter, fromEvent, map, mergeMap, partition, tap} from "rxjs";
 import {processHashBatch, processNewHashBatch} from "./processNewHashBatch.js";
