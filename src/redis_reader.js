@@ -56,7 +56,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
       { BLOCK: 0 }
     );
     const msg = data[0]?.messages?.[0]?.message;
-    const message = JSON.parse(msg);
+    const message = { ...msg, hashes: JSON.parse(msg.hashes) };
     log(message);
 
     if (message.type === 0) {
