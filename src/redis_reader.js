@@ -59,8 +59,14 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
       { BLOCK: 0, COUNT: BATCH_SIZE }
     );
     log(data[0].messages)
-    hashes.push(...data[0].messages.filter(m => m.type === '0'));
-    xunis.push(...data[0].messages.filter(m => m.type !== '0'));
+    hashes.push(...data[0].messages
+      .map(m => m.message)
+      .filter(m => m.type === '0')
+    );
+    xunis.push(...data[0].messages
+      .map(m => m.message)
+      .filter(m => m.type !== '0')
+    );
     if (hashes.length >= BATCH_SIZE) {
       log('hashes', hashes.length);
       const r = await processNewHashBatch(hashes, contract);
