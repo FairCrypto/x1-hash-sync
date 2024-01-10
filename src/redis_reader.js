@@ -59,7 +59,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
     const message = { ...msg, hashes: JSON.parse(msg.hashes) };
     log(message);
 
-    if (message.type === 0) {
+    if (message.type === '0') {
       log('hashes batch', message.hashes.length);
       const r = await processNewHashBatch(message.hashes, contract);
       log('hashes sent', r);
