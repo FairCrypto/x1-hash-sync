@@ -20,7 +20,6 @@ const NETWORK_ID = process.env.NETWORK_ID || '204005';
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const BATCH_SIZE = process.env.BATCH_SIZE || 10;
 
 // entry point
 (async () => {
@@ -29,7 +28,6 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
   log('using network', NETWORK_ID);
   log('using contract', CONTRACT_ADDRESS);
   log('using redis host:port', `${REDIS_HOST}:${REDIS_PORT}`);
-  log('using batch size', BATCH_SIZE);
 
   const provider = new JsonRpcProvider(RPC_URL, Number(NETWORK_ID));
   const wallet = new Wallet(process.env.PK, provider);
@@ -50,38 +48,24 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
     process.exit(0);
   })
 
-  const hashes = [];
-  const xunis = [];
   while (true) {
     const data = await redisClient.xRead(
-      commandOptions({ isolated: true }), // https://github.com/redis/node-redis/blob/master/docs/isolated-execution.md
-      { key: 'x1:hashes', id: '$' },
+      // https://github.com/redis/node-redis/blob/master/docs/isolated-execution.md
+      commandOptions({ isolated: true }),
+      { key: 'x1:batches', id: '$' },
       { BLOCK: 0 }
     );
-    // log(data[0].messages)
-    hashes.push(...data[0].messages
-      .map(m => m.message)
-      .filter(m => m.type === '0')
-    );
-    xunis.push(...data[0].messages
-      .map(m => m.message)
-      .filter(m => m.type !== '0')
-    );
-    if (hashes.length >= BATCH_SIZE) {
-      log('hashes', hashes.length);
-      const r = await processNewHashBatch(hashes, contract);
+    const message = data[0]?.messages?.[0]?.message;
+    log(message);
+
+    if (message.type === 0) {
+      log('hashes batch', message.hashes.length);
+      const r = await processNewHashBatch(message.hashes, contract);
       log('hashes sent', r);
-
-      // clear buffer
-      hashes.splice(0, BATCH_SIZE)
-    }
-    if (xunis.length >= BATCH_SIZE) {
-      log('xunis', xunis.length)
-      const r = await processHashBatch(xunis, contract, wallet.address);
+    } else {
+      log('xunis batch', xunis.length)
+      const r = await processHashBatch(message.hashes, contract, wallet.address);
       log('xunis sent', r);
-
-      // clear buffer
-      xunis.splice(0, BATCH_SIZE)
     }
   }
 
