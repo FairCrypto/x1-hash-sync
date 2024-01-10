@@ -55,7 +55,8 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
       { key: 'x1:batches', id: '$' },
       { BLOCK: 0 }
     );
-    const message = data[0]?.messages?.[0]?.message;
+    const msg = data[0]?.messages?.[0]?.message;
+    const message = JSON.parse(msg);
     log(message);
 
     if (message.type === 0) {
@@ -63,7 +64,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
       const r = await processNewHashBatch(message.hashes, contract);
       log('hashes sent', r);
     } else {
-      log('xunis batch', xunis.length)
+      log('xunis batch', message.hashes.length)
       const r = await processHashBatch(message.hashes, contract, wallet.address);
       log('xunis sent', r);
     }
