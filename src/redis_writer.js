@@ -53,9 +53,9 @@ const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
         const data = Buffer.concat(body).toString();
         try {
           const hash = JSON.parse(data);
-          log('data', hash);
           const isNew = await redisClient.sAdd('x1:keys', hash.key);
           if (isNew) {
+            log('data', hash.key);
             // await redisClient.lPush(hash.key, data);
             await redisClient.xAdd('x1:hashes', '*', hash);
             res.writeHead(200);
