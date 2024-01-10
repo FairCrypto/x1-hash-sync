@@ -13,7 +13,7 @@ const log = debug('hash-sync')
 // const MAX_RETRIES = process.env.MAX_RETRIES || '20';
 const PORT = process.env.PORT || 9997;
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
-const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
+const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
 // const BATCH_SIZE = process.env.BATCH_SIZE || 10;
 
 // entry point
