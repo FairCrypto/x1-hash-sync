@@ -12,11 +12,13 @@
   "author": "L.Belyaev",
   "license": "MIT",
   "dependencies": {
+    "@redis/bloom": "^1.2.0",
     "argon2": "^0.31.2",
     "bloom-filters": "^3.0.1",
     "body-parser": "^1.20.2",
     "ethers": "^6.9.0",
     "express": "^4.18.2",
+    "redis": "^4.6.12",
     "rxjs": "^7.5.4",
     "sqlite": "^5.0.1",
     "sqlite3": "^5.1.6"
