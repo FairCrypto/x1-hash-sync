@@ -56,7 +56,7 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
     if (hashes.length >= BATCH_SIZE) {
       log('hashes', hashes.length);
       // const r = await processNewHashBatch(hashes, contract);
-      await redisClient.xAdd('x1:batches', '*', { type: 0, hashes });
+      await redisClient.xAdd('x1:batches', '*', JSON.stringify({ type: 0, hashes }));
       log('hashes batched');
 
       // clear buffer
