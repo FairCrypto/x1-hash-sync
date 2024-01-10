@@ -35,8 +35,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
   const contract = new Contract(CONTRACT_ADDRESS, abi, wallet);
 
   const redisClient = await createClient({
-    host: REDIS_HOST,
-    port: REDIS_PORT
+    url: `redis://${REDIS_HOST}:${REDIS_PORT}`
   }).on('error', (err) => console.error('ERR:REDIS:', err));
   redisClient.on('connect', () => log('redis connected'));
   await redisClient.connect();

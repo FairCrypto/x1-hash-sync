@@ -26,12 +26,10 @@ const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
   const server = http.createServer();
 
   const redisClient = await createClient({
-    host: REDIS_HOST,
-    port: REDIS_PORT
+    url: `redis://${REDIS_HOST}:${REDIS_PORT}`
   }).on('error', (err) => console.error('ERR:REDIS:', err));
   redisClient.on('connect', () => log('redis connected'));
   await redisClient.connect();
-  log(redisClient.serverInfo)
 
   process.on('SIGINT', () => {
     log('SIGINT received, exiting');
