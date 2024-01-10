@@ -129,7 +129,8 @@ batchedBlocks$ = blocks$.pipe(
   server.getConnections((err, count) => {
     log('connections', count)
   })
-  log('SEND hashes', data)
+  log('SEND hashes', data);
+  global.gc();
 });
 
 batchedXunis$ = xunis$.pipe(
@@ -151,7 +152,8 @@ batchedXunis$ = xunis$.pipe(
   server.getConnections((err, count) => {
     log('connections', count)
   })
-  log('SEND xunis', data)
+  log('SEND xunis', data);
+  global.gc();
 });
 
 server.listen(PORT, '0.0.0.0', 100,
