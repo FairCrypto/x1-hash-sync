@@ -58,7 +58,7 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
       { key: 'x1:hashes', id: '$' },
       { BLOCK: 0, COUNT: BATCH_SIZE }
     );
-    log(data[0].messages)
+    // log(data[0].messages)
     hashes.push(...data[0].messages
       .map(m => m.message)
       .filter(m => m.type === '0')
