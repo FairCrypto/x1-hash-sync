@@ -117,10 +117,12 @@ batchedBlocks$ = blocks$.pipe(
   }),
   filter(data => data?.type && data?.key && data?.account && data?.hash_to_verify),
   bufferCount(Number(BATCH_SIZE)),
-  mergeMap( (data) => {
+  mergeMap( async (data) => {
     log('blocks', data.length)
     if (data.length === 0) return;
-    return processNewHashBatch(data, contract);
+    const r = await processNewHashBatch(data, contract);
+    data.splice(0, data.length);
+    return r;
   })
 ).subscribe( (data) => {
   server.getConnections((err, count) => {
@@ -137,10 +139,12 @@ batchedXunis$ = xunis$.pipe(
   }),
   filter(data => data?.type && data?.key && data?.account && data?.hash_to_verify),
   bufferCount(Number(BATCH_SIZE)),
-  mergeMap( (data) => {
+  mergeMap( async (data) => {
     log('xunis', data.length)
     if (data.length === 0) return;
-    return  processHashBatch(data, contract, wallet.address);
+    const r = await processHashBatch(data, contract, wallet.address);
+    data.splice(0, data.length);
+    return r;
   })
 ).subscribe( (data) => {
   server.getConnections((err, count) => {
