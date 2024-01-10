@@ -65,7 +65,7 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
     if (xunis.length >= BATCH_SIZE) {
       log('xunis', xunis.length)
       // const r = await processHashBatch(xunis, contract, wallet.address);
-      await redisClient.xAdd('x1:batches', '*', { type: '1', hashes: JSON.stringify(hashes) });
+      await redisClient.xAdd('x1:batches', '*', { type: '1', hashes: JSON.stringify(xunis) });
       log('xunis batched');
 
       // clear buffer
