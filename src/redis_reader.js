@@ -69,19 +69,19 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
     );
     if (hashes.length >= BATCH_SIZE) {
       log('hashes', hashes.length);
-      processNewHashBatch(hashes, contract).then(r => {
-        log('hashes sent', r);
-        // clear buffer
-        hashes.splice(0, BATCH_SIZE)
-      });
+      const r = await processNewHashBatch(hashes, contract);
+      log('hashes sent', r);
+
+      // clear buffer
+      hashes.splice(0, BATCH_SIZE)
     }
     if (xunis.length >= BATCH_SIZE) {
       log('xunis', xunis.length)
-      processHashBatch(xunis, contract, wallet.address).then(r => {
-        log('xunis sent', r);
-        // clear buffer
-        xunis.splice(0, BATCH_SIZE)
-      })
+      const r = await processHashBatch(xunis, contract, wallet.address);
+      log('xunis sent', r);
+
+      // clear buffer
+      xunis.splice(0, BATCH_SIZE)
     }
   }
 
