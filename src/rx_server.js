@@ -96,12 +96,14 @@ const [blocks$, xunis$] = partition(
       external0 = external0 || external;
       arrayBuffers0 = arrayBuffers0 || arrayBuffers;
       log(
-        'dup', data?.key, bloomFilter.length,
+        'dup', data?.key,
+        'bloom', bloomFilter.length,
         'rss', (rss/rss0).toFixed(2),
         'ht', (heapTotal/heapTotal0).toFixed(2),
         'hu', (heapUsed/heapUsed0).toFixed(2),
         'ext', (external/external0).toFixed(2),
-        'ab', (arrayBuffers/arrayBuffers0).toFixed(2)
+        'ab', (arrayBuffers/arrayBuffers0).toFixed(2),
+        batchedBlocks$
       );
       return false;
     }

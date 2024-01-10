@@ -30,8 +30,9 @@ const prepareBytes = (hash) => {
 
 export const processNewHashBatch = async (hashes, contract) => {
   assert.ok(Array.isArray(hashes), 'hashes is not array');
+  let params;
   try {
-    const params = hashes.map(prepareBytes)
+    params = hashes.map(prepareBytes)
       .reduce(
         (acc, [value1, value2, value3]) => {
           acc[0].push(value1);
@@ -52,19 +53,21 @@ export const processNewHashBatch = async (hashes, contract) => {
       maxPriorityFeePerGas: 2_000_000_000n,
     });
     const result = await res.wait(1);
-    params.forEach(arr => arr.splice(0, arr.length));
-    params.splice(0, params.length);
     return result?.status === 1 ? 'OK' : 'FAIL';
   } catch (e) {
     log('ERR', e.message);
     // throw e;
+  } finally {
+    params.forEach(arr => arr.splice(0, arr.length));
+    params.splice(0, params.length);
   }
 }
 
 export const processHashBatch = async (hashes, contract, address) => {
   assert.ok(Array.isArray(hashes), 'hashes is not array');
+  let params;
   try {
-    const params = hashes.map(prepareBytes)
+    params = hashes.map(prepareBytes)
       .reduce(
         (acc, [value1, value2, value3]) => {
           acc[0].push(value1);
@@ -85,11 +88,12 @@ export const processHashBatch = async (hashes, contract, address) => {
       maxPriorityFeePerGas: 2_000_000_000n,
     });
     const result = await res.wait(1);
-    params.forEach(arr => arr.splice(0, arr.length));
-    params.splice(0, params.length);
     return result?.status === 1 ? 'OK' : 'FAIL';
   } catch (e) {
     log('ERR', address, e);
     // throw e;
+  } finally {
+    params.forEach(arr => arr.splice(0, arr.length));
+    params.splice(0, params.length);
   }
 }
