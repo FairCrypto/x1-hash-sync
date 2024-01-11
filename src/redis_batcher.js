@@ -36,7 +36,7 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
 
   const hashes = [];
   const xunis = [];
-  const lastHashId = await redisClient.get('x1:lastHashId');
+  let lastHashId = await redisClient.get('x1:lastHashId');
   log('last hash_id', lastHashId);
   while (true) {
     const data = await redisClient.xRead(
@@ -45,10 +45,10 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
       { key: 'x1:hashes', id: '$' },
       { BLOCK: 0 }
     );
-    const lastId = data[0]?.messages?.[0]?.id;
+    lastHashId = data[0]?.messages?.[0]?.id;
     // log(data[0].messages)
     // log('last id', lastId);
-    await redisClient.set('x1:lastHashId', lastId);
+    await redisClient.set('x1:lastHashId', lastHashId);
     hashes.push(...data[0].messages
       .map(m => m.message)
       .filter(m => m.type === '0')

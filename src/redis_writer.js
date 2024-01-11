@@ -69,9 +69,9 @@ const get10MinTimestamp = () => {
             const isNew = await redisClient.sAdd('x1:keys', record.key);
             if (isNew) {
               log('data', record.key, record.type);
+              await redisClient.xAdd('x1:hashes', '*', record);
               if (record.type === '0') {
                 // await redisClient.lPush(record.key, data);
-                await redisClient.xAdd('x1:hashes', '*', record);
                 const ts = get1MinTimestamp();
                 const ts10 = get10MinTimestamp();
                 if (await redisClient.ttl('x1:hr1') === -1) {
@@ -85,7 +85,7 @@ const get10MinTimestamp = () => {
                 } else {
                   await redisClient.hIncrBy('x1:hr1', ts, 1);
                 }
-                if (!await redisClient.hExists('x1:hr10', ts10) || await redisClient.ttl('x1:hr10') === -1) {
+                if (!await redisClient.hExists('x1:hr10', ts10)) {
                   await redisClient.hSet('x1:hr10', ts10, 1);
                 } else {
                   await redisClient.hIncrBy('x1:hr10', ts10, 1);
