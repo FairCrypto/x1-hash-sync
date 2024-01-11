@@ -47,16 +47,21 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
     process.exit(0);
   })
 
+  const lastBatchId = await redisClient.get('x1:lastBatchId');
+  log('last batch_id', lastBatchId);
+
   while (true) {
     const data = await redisClient.xRead(
       // https://github.com/redis/node-redis/blob/master/docs/isolated-execution.md
       commandOptions({ isolated: true }),
-      { key: 'x1:batches', id: '$' },
+      { key: 'x1:batches', id: lastBatchId || '$' },
       { BLOCK: 0 }
     );
     const msg = data[0]?.messages?.[0]?.message;
     const message = { ...msg, hashes: JSON.parse(msg.hashes) };
     // log(message);
+
+    await redisClient.set('x1:lastBatchId', data[0]?.messages?.[0]?.id);
 
     if (message.type === '0') {
       log('hashes batch', message.hashes.length);
