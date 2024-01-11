@@ -16,6 +16,14 @@ const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
 // const BATCH_SIZE = process.env.BATCH_SIZE || 10;
 
+const getTimestamp = () => {
+  const now = new Date();
+// Set seconds and milliseconds to 0 to get the start of the minute
+  now.setSeconds(0, 0);
+// The timestamp for the start of the current minute
+  return (now.getTime() / 1000).toString()
+}
+
 // entry point
 (async () => {
 
@@ -42,9 +50,6 @@ const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
   // await redisClient.bf.reserve({ key: 'uniquesbloom', errorRate: 0.02, capacity: 1000000 })
   // await redisClient.bf.reserve('uniquesbloom', 0.02, 1000000);
 
-  await redisClient.ttl('x1:hashRate', 60);
-  // await redisClient.hSet('x1:hashRate', '0');
-
   server.on('request', async (req, res) => {
     const {url, method} = req;
     if (method === 'POST') {
@@ -60,7 +65,12 @@ const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
               log('data', hash.key);
               // await redisClient.lPush(hash.key, data);
               await redisClient.xAdd('x1:hashes', '*', hash);
-              // await redisClient.hIncrBy('x1:hashRate', 1)
+              const ts = getTimestamp();
+              if (! await redisClient.hExists('x1:hashRate', ts)) {
+                await redisClient.hSet('x1:hashRate', ts, 1);
+              } else {
+                await redisClient.hIncrBy('x1:hashRate', ts, 1);
+              }
               res.writeHead(200);
               res.end();
             } else {
