@@ -14,7 +14,6 @@ const log = debug('hash-sync')
 const PORT = process.env.PORT || 9997;
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
-// const BATCH_SIZE = process.env.BATCH_SIZE || 10;
 
 const get1MinTimestamp = () => {
   const now = new Date();
@@ -28,6 +27,27 @@ const get10MinTimestamp = () => {
   const minutes = now.getMinutes();
   // Calculate the index of the 10-minute interval
   return `10min:${Math.floor(minutes / 10).toString()}`
+}
+
+const telemetry = async (redisClient) => {
+  const ts = get1MinTimestamp();
+  const ts10 = get10MinTimestamp();
+  if (await redisClient.ttl('x1:hr1') === -1) {
+    await redisClient.expire('x1:hr1', 3600);
+  }
+  if (await redisClient.ttl('x1:hr10') === -1) {
+    await redisClient.expire('x1:hr10', 3600);
+  }
+  if (!await redisClient.hExists('x1:hr1', ts)) {
+    await redisClient.hSet('x1:hr1', ts, 1);
+  } else {
+    await redisClient.hIncrBy('x1:hr1', ts, 1);
+  }
+  if (!await redisClient.hExists('x1:hr10', ts10)) {
+    await redisClient.hSet('x1:hr10', ts10, 1);
+  } else {
+    await redisClient.hIncrBy('x1:hr10', ts10, 1);
+  }
 }
 
 // entry point
@@ -72,24 +92,7 @@ const get10MinTimestamp = () => {
               await redisClient.xAdd('x1:hashes', '*', record);
               if (record.type === '0') {
                 // await redisClient.lPush(record.key, data);
-                const ts = get1MinTimestamp();
-                const ts10 = get10MinTimestamp();
-                if (await redisClient.ttl('x1:hr1') === -1) {
-                  await redisClient.expire('x1:hr1', 3600);
-                }
-                if (await redisClient.ttl('x1:hr10') === -1) {
-                  await redisClient.expire('x1:hr10', 3600);
-                }
-                if (!await redisClient.hExists('x1:hr1', ts)) {
-                  await redisClient.hSet('x1:hr1', ts, 1);
-                } else {
-                  await redisClient.hIncrBy('x1:hr1', ts, 1);
-                }
-                if (!await redisClient.hExists('x1:hr10', ts10)) {
-                  await redisClient.hSet('x1:hr10', ts10, 1);
-                } else {
-                  await redisClient.hIncrBy('x1:hr10', ts10, 1);
-                }
+                await telemetry(redisClient);
               }
               res.writeHead(200);
               res.end();
