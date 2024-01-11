@@ -74,15 +74,19 @@ const get10MinTimestamp = () => {
                 await redisClient.xAdd('x1:hashes', '*', record);
                 const ts = get1MinTimestamp();
                 const ts10 = get10MinTimestamp();
-                if (!await redisClient.hExists('x1:hr1', ts) || await redisClient.ttl('x1:hr1') === -1) {
-                  await redisClient.hSet('x1:hr1', ts, 1);
+                if (await redisClient.ttl('x1:hr1') === -1) {
                   await redisClient.expire('x1:hr1', 3600);
+                }
+                if (await redisClient.ttl('x1:hr10') === -1) {
+                  await redisClient.expire('x1:hr10', 3600);
+                }
+                if (!await redisClient.hExists('x1:hr1', ts)) {
+                  await redisClient.hSet('x1:hr1', ts, 1);
                 } else {
                   await redisClient.hIncrBy('x1:hr1', ts, 1);
                 }
                 if (!await redisClient.hExists('x1:hr10', ts10) || await redisClient.ttl('x1:hr10') === -1) {
                   await redisClient.hSet('x1:hr10', ts10, 1);
-                  await redisClient.expire('x1:hr10', 3600);
                 } else {
                   await redisClient.hIncrBy('x1:hr10', ts10, 1);
                 }
