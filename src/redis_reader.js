@@ -61,16 +61,21 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
     const message = { ...msg, hashes: JSON.parse(msg.hashes) };
     // log(message);
     lastBatchId = data[0]?.messages?.reduce((acc, m) => m.id, lastBatchId);
-    await redisClient.set('x1:lastBatchId', lastBatchId);
 
     if (message.type === '0') {
       log('hashes batch', message.hashes.length);
       const r = await processNewHashBatch(message.hashes, contract);
       log('hashes sent', r);
+      if (r === 'OK') {
+        await redisClient.set('x1:lastBatchId', lastBatchId);
+      }
     } else {
       log('xunis batch', message.hashes.length)
       const r = await processHashBatch(message.hashes, contract, wallet.address);
       log('xunis sent', r);
+      if (r === 'OK') {
+        await redisClient.set('x1:lastBatchId', lastBatchId);
+      }
     }
   }
 

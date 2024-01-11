@@ -45,10 +45,7 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
       { key: 'x1:hashes', id: lastHashId || '$' },
       { BLOCK: 0, COUNT: BATCH_SIZE }
     );
-    lastHashId = data[0]?.messages?.reduce((acc, m) => m.id, lastHashId);
     // log(data[0]?.messages);
-    // log('last id', lastId);
-    await redisClient.set('x1:lastHashId', lastHashId);
     hashes.push(...data[0].messages
       .map(m => m.message)
       .filter(m => m.type === '0')
@@ -62,7 +59,8 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
       // const r = await processNewHashBatch(hashes, contract);
       await redisClient.xAdd('x1:batches', '*', { type: '0', hashes: JSON.stringify(hashes) });
       log('hashes batched');
-
+      lastHashId = data[0]?.messages?.reduce((acc, m) => m.id, lastHashId);
+      await redisClient.set('x1:lastHashId', lastHashId);
       // clear buffer
       hashes.length = 0;
     }
@@ -71,7 +69,8 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
       // const r = await processHashBatch(xunis, contract, wallet.address);
       await redisClient.xAdd('x1:batches', '*', { type: '1', hashes: JSON.stringify(xunis) });
       log('xunis batched');
-
+      lastHashId = data[0]?.messages?.reduce((acc, m) => m.id, lastHashId);
+      await redisClient.set('x1:lastHashId', lastHashId);
       // clear buffer
       xunis.length = 0;
     }
