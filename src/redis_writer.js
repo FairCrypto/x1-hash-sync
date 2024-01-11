@@ -18,22 +18,16 @@ const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
 
 const get1MinTimestamp = () => {
   const now = new Date();
-// Set seconds and milliseconds to 0 to get the start of the minute
-  now.setSeconds(0, 0);
-// The timestamp for the start of the current minute
-  return (now.getTime() / 1000).toString()
+  // Get the current minutes
+  return `1min:${now.getMinutes().toString()}`
 }
 
 const get10MinTimestamp = () => {
   const now = new Date();
   // Get the current minutes
   const minutes = now.getMinutes();
-  // Round down to the nearest 10 minutes
-  const roundedMinutes = minutes - (minutes % 10);
-  // Set the rounded minutes and reset seconds and milliseconds
-  now.setMinutes(roundedMinutes, 0, 0);
-  // Get the timestamp
-  return (now.getTime() / 1000).toString()
+  // Calculate the index of the 10-minute interval
+  return `10min:${Math.floor(minutes / 10).toString()}`
 }
 
 // entry point
@@ -80,15 +74,17 @@ const get10MinTimestamp = () => {
                 await redisClient.xAdd('x1:hashes', '*', record);
                 const ts = get1MinTimestamp();
                 const ts10 = get10MinTimestamp();
-                if (!await redisClient.hExists('x1:hashRate', ts)) {
-                  await redisClient.hSet('x1:hashRate', ts, 1);
+                if (!await redisClient.hExists('x1:hr1', ts) || await redisClient.ttl('x1:hr1') === -1) {
+                  await redisClient.hSet('x1:hr1', ts, 1);
+                  await redisClient.expire('x1:hr1', 60);
                 } else {
-                  await redisClient.hIncrBy('x1:hashRate', ts, 1);
+                  await redisClient.hIncrBy('x1:hr1', ts, 1);
                 }
-                if (!await redisClient.hExists('x1:hashRate10', ts10)) {
-                  await redisClient.hSet('x1:hashRate10', ts10, 1);
+                if (!await redisClient.hExists('x1:hr10', ts10) || await redisClient.ttl('x1:hr10') === -1) {
+                  await redisClient.hSet('x1:hr10', ts10, 1);
+                  await redisClient.expire('x1:hr10', 600);
                 } else {
-                  await redisClient.hIncrBy('x1:hashRate10', ts10, 1);
+                  await redisClient.hIncrBy('x1:hr10', ts10, 1);
                 }
               }
               res.writeHead(200);
