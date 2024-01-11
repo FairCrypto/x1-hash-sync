@@ -43,7 +43,7 @@ const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
   // await redisClient.bf.reserve('uniquesbloom', 0.02, 1000000);
 
   await redisClient.ttl('x1:hashRate', 60);
-  await redisClient.hSet('x1:hashRate', '0');
+  // await redisClient.hSet('x1:hashRate', '0');
 
   server.on('request', async (req, res) => {
     const {url, method} = req;
@@ -60,7 +60,7 @@ const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
               log('data', hash.key);
               // await redisClient.lPush(hash.key, data);
               await redisClient.xAdd('x1:hashes', '*', hash);
-              await redisClient.hIncrBy('x1:hashRate', 1)
+              // await redisClient.hIncrBy('x1:hashRate', 1)
               res.writeHead(200);
               res.end();
             } else {
