@@ -16,11 +16,23 @@ const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
 // const BATCH_SIZE = process.env.BATCH_SIZE || 10;
 
-const getTimestamp = () => {
+const get1MinTimestamp = () => {
   const now = new Date();
 // Set seconds and milliseconds to 0 to get the start of the minute
   now.setSeconds(0, 0);
 // The timestamp for the start of the current minute
+  return (now.getTime() / 1000).toString()
+}
+
+const get10MinTimestamp = () => {
+  const now = new Date();
+  // Get the current minutes
+  const minutes = now.getMinutes();
+  // Round down to the nearest 10 minutes
+  const roundedMinutes = minutes - (minutes % 10);
+  // Set the rounded minutes and reset seconds and milliseconds
+  now.setMinutes(roundedMinutes, 0, 0);
+  // Get the timestamp
   return (now.getTime() / 1000).toString()
 }
 
@@ -59,22 +71,30 @@ const getTimestamp = () => {
         .on('end', async () => {
           const data = Buffer.concat(body).toString();
           try {
-            const hash = JSON.parse(data);
-            const isNew = await redisClient.sAdd('x1:keys', hash.key);
+            const record = JSON.parse(data);
+            const isNew = await redisClient.sAdd('x1:keys', record.key);
             if (isNew) {
-              log('data', hash.key);
-              // await redisClient.lPush(hash.key, data);
-              await redisClient.xAdd('x1:hashes', '*', hash);
-              const ts = getTimestamp();
-              if (! await redisClient.hExists('x1:hashRate', ts)) {
-                await redisClient.hSet('x1:hashRate', ts, 1);
-              } else {
-                await redisClient.hIncrBy('x1:hashRate', ts, 1);
+              log('data', record.key, record.type);
+              if (record.type === '0') {
+                // await redisClient.lPush(record.key, data);
+                await redisClient.xAdd('x1:hashes', '*', record);
+                const ts = get1MinTimestamp();
+                const ts10 = get10MinTimestamp();
+                if (!await redisClient.hExists('x1:hashRate', ts)) {
+                  await redisClient.hSet('x1:hashRate', ts, 1);
+                } else {
+                  await redisClient.hIncrBy('x1:hashRate', ts, 1);
+                }
+                if (!await redisClient.hExists('x1:hashRate10', ts10)) {
+                  await redisClient.hSet('x1:hashRate10', ts10, 1);
+                } else {
+                  await redisClient.hIncrBy('x1:hashRate10', ts10, 1);
+                }
               }
               res.writeHead(200);
               res.end();
             } else {
-              log('dup', hash.key)
+              log('dup', record.key)
               res.writeHead(409);
               res.end('Existing key');
             }
