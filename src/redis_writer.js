@@ -1,7 +1,7 @@
 import * as http from "http";
 import dotenv from "dotenv";
 import debug from "debug";
-import { createClient } from "redis";
+import {createClient} from "redis";
 
 const [, , ...args] = process.argv;
 
@@ -42,34 +42,37 @@ const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
   // await redisClient.bf.reserve({ key: 'uniquesbloom', errorRate: 0.02, capacity: 1000000 })
   // await redisClient.bf.reserve('uniquesbloom', 0.02, 1000000);
 
+  await redisClient.ttl('x1:hashRate', 60);
+
   server.on('request', async (req, res) => {
     const {url, method} = req;
     if (method === 'POST') {
       const body = [];
-      req.on('data', chunk => {
-        body.push(chunk);
-      }).on('end', async () => {
-        const data = Buffer.concat(body).toString();
-        try {
-          const hash = JSON.parse(data);
-          const isNew = await redisClient.sAdd('x1:keys', hash.key);
-          if (isNew) {
-            log('data', hash.key);
-            // await redisClient.lPush(hash.key, data);
-            await redisClient.xAdd('x1:hashes', '*', hash);
-            res.writeHead(200);
-            res.end();
-          } else {
-            log('dup', hash.key)
-            res.writeHead(409);
-            res.end('Existing key');
+      req
+        .on('data', chunk => body.push(chunk))
+        .on('end', async () => {
+          const data = Buffer.concat(body).toString();
+          try {
+            const hash = JSON.parse(data);
+            const isNew = await redisClient.sAdd('x1:keys', hash.key);
+            if (isNew) {
+              log('data', hash.key);
+              // await redisClient.lPush(hash.key, data);
+              await redisClient.xAdd('x1:hashes', '*', hash);
+              await redisClient.hIncrBy('x1:hashRate', 1)
+              res.writeHead(200);
+              res.end();
+            } else {
+              log('dup', hash.key)
+              res.writeHead(409);
+              res.end('Existing key');
+            }
+          } catch (e) {
+            log('ERROR', e)
+            res.writeHead(500);
+            res.end(e.message);
           }
-        } catch (e) {
-          log('ERROR', e)
-          res.writeHead(500);
-          res.end(e.message);
-        }
-      });
+        });
     } else {
       res.statusCode = 404;
       res.end();
