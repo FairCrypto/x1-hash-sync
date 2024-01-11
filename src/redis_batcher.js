@@ -46,7 +46,7 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
       { BLOCK: 0, COUNT: BATCH_SIZE }
     );
     lastHashId = data[0]?.messages?.reduce((acc, m) => m.id, lastHashId);
-    log(data[0]?.messages);
+    // log(data[0]?.messages);
     // log('last id', lastId);
     await redisClient.set('x1:lastHashId', lastHashId);
     hashes.push(...data[0].messages
