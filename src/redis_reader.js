@@ -54,7 +54,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
     const data = await redisClient.xRead(
       // https://github.com/redis/node-redis/blob/master/docs/isolated-execution.md
       commandOptions({ isolated: true }),
-      { key: 'x1:batches', id: lastBatchId || '$' },
+      { key: 'x1:batches', id: '$' },
       { BLOCK: 0 }
     );
     const msg = data[0]?.messages?.[0]?.message;

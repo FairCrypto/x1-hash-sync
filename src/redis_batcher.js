@@ -42,7 +42,7 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
     const data = await redisClient.xRead(
       // https://github.com/redis/node-redis/blob/master/docs/isolated-execution.md
       commandOptions({ isolated: true }),
-      { key: 'x1:hashes', id: lastHashId || '$' },
+      { key: 'x1:hashes', id: '$' },
       { BLOCK: 0 }
     );
     const lastId = data[0]?.messages?.[0]?.id;
