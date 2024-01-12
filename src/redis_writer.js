@@ -54,8 +54,7 @@ const telemetry = async (redisClient) => {
 (async () => {
 
   log('using listen port', PORT);
-  // log('using batch size', BATCH_SIZE);
-  log('using redis host:port', `${REDIS_HOST}:${REDIS_PORT}`);
+  log('using redis', `${REDIS_HOST}:${REDIS_PORT}`);
 
   const server = http.createServer();
 
@@ -73,6 +72,7 @@ const telemetry = async (redisClient) => {
     log('redis client closed');
   })
 
+  // TODO: use when REDIS instance has Bloom Filter support
   // await redisClient.bf.reserve({ key: 'uniquesbloom', errorRate: 0.02, capacity: 1000000 })
   // await redisClient.bf.reserve('uniquesbloom', 0.02, 1000000);
 
@@ -91,7 +91,6 @@ const telemetry = async (redisClient) => {
               log('data', record.key, record.type);
               await redisClient.xAdd('x1:hashes', '*', record);
               if (record.type === '0') {
-                // await redisClient.lPush(record.key, data);
                 await telemetry(redisClient);
               }
               res.writeHead(200);

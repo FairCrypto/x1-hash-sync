@@ -10,7 +10,6 @@ debug.enable('*');
 const log = debug('hash-sync')
 
 // const MAX_RETRIES = process.env.MAX_RETRIES || '20';
-// const PORT = process.env.PORT || 9997;
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 const BATCH_SIZE = process.env.BATCH_SIZE || 10;
@@ -18,7 +17,7 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
 // entry point
 (async () => {
 
-  log('using redis host:port', `${REDIS_HOST}:${REDIS_PORT}`);
+  log('using redis', `${REDIS_HOST}:${REDIS_PORT}`);
   log('using batch size', BATCH_SIZE);
 
   const redisClient = await createClient({

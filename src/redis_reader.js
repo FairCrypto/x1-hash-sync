@@ -16,7 +16,6 @@ const abi = BlockStorage.abi;
 const RPC_URL = process.env.RPC_URL || 'https://x1-testnet.infrafc.org';
 const NETWORK_ID = process.env.NETWORK_ID || '204005';
 // const MAX_RETRIES = process.env.MAX_RETRIES || '20';
-// const PORT = process.env.PORT || 9997;
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
@@ -27,7 +26,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
   log('using RPC', RPC_URL);
   log('using network', NETWORK_ID);
   log('using contract', CONTRACT_ADDRESS);
-  log('using redis host:port', `${REDIS_HOST}:${REDIS_PORT}`);
+  log('using redis', `${REDIS_HOST}:${REDIS_PORT}`);
 
   const provider = new JsonRpcProvider(RPC_URL, Number(NETWORK_ID));
   const wallet = new Wallet(process.env.PK, provider);
