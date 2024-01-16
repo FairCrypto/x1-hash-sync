@@ -12,6 +12,7 @@ const log = debug('hash-sync')
 // const MAX_RETRIES = process.env.MAX_RETRIES || '20';
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
+const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 const BATCH_SIZE = process.env.BATCH_SIZE || 10;
 
 // entry point
@@ -21,7 +22,7 @@ const BATCH_SIZE = process.env.BATCH_SIZE || 10;
   log('using batch size', BATCH_SIZE);
 
   const redisClient = await createClient({
-    url: `redis://${REDIS_HOST}:${REDIS_PORT}`
+    url: `redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}`
   }).on('error', (err) => console.error('ERR:REDIS:', err));
   redisClient.on('connect', () => log('redis connected'));
   await redisClient.connect();
