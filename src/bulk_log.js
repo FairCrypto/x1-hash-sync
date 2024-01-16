@@ -127,15 +127,15 @@ let db;
         // await new Promise(resolve => setTimeout(resolve, 1000));
         continue;
       }
-      const [addresses, hashIds, bytes] = unzip3(zippedData);
+      const [addresses, , bytes] = unzip3(zippedData);
 
       const blob = solidityPacked(["address[]", "bytes[]"], [addresses, bytes]);
       const gas = await contract.logStoreRecords.estimateGas(
         bytes.length, blob
       );
-      const res = await contract.logStoreRecords(bytes.length, blob, {
-        gasLimit: gas * 120n / 100n,
-      });
+      const res = await contract.logStoreRecords(
+        bytes.length, blob, { gasLimit: gas * 120n / 100n }
+      );
       const result = await res.wait(1);
       log(bytes.length, result?.status)
       await new Promise(resolve => setTimeout(resolve, 100));
