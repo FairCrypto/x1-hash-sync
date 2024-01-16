@@ -128,8 +128,12 @@ let db;
         continue;
       }
       const [addresses, hashIds, bytes] = unzip3(zippedData);
-      const gas = await contract.logStoreRecordBytes.estimateGas(bytes);
-      const res = await contract.logStoreRecordBytes(bytes, {
+
+      const blob = solidityPacked(["address[]", "bytes[]"], [addresses, bytes]);
+      const gas = await contract.logStoreRecords.estimateGas(
+        bytes.length, blob
+      );
+      const res = await contract.logStoreRecords(bytes.length, blob, {
         gasLimit: gas * 120n / 100n,
       });
       const result = await res.wait(1);
