@@ -18,6 +18,7 @@ const NETWORK_ID = process.env.NETWORK_ID || '204005';
 // const MAX_RETRIES = process.env.MAX_RETRIES || '20';
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
+const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 
 // entry point
@@ -34,7 +35,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
   const contract = new Contract(CONTRACT_ADDRESS, abi, wallet);
 
   const redisClient = await createClient({
-    url: `redis://${REDIS_HOST}:${REDIS_PORT}`
+    url: `redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}`
   }).on('error', (err) => console.error('ERR:REDIS:', err));
   redisClient.on('connect', () => log('redis connected'));
   await redisClient.connect();
