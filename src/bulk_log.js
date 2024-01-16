@@ -6,6 +6,7 @@ import { open } from 'sqlite'
 import debug from "debug";
 import assert from "assert";
 import BlockStorage from "../abi/BlockStorage_v2.json" assert { type: "json" };
+import pako from 'pako';
 
 const [,, ...args] = process.argv;
 
@@ -131,10 +132,10 @@ let db;
 
       const blob = solidityPacked(["address[]", "bytes[]"], [addresses, bytes]);
       const gas = await contract.logStoreRecords.estimateGas(
-        bytes.length, blob
+        bytes.length, pako.deflate(blob)
       );
       const res = await contract.logStoreRecords(
-        bytes.length, blob, { gasLimit: gas * 120n / 100n }
+        bytes.length, pako.deflate(blob), { gasLimit: gas * 120n / 100n }
       );
       const result = await res.wait(1);
       log(bytes.length, result?.status)
