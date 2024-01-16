@@ -60,7 +60,7 @@ const telemetry = async (redisClient) => {
   const server = http.createServer();
 
   const redisClient = await createClient({
-    url: `redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}`
+    url: `redis://${REDIS_HOST}:${REDIS_PORT}`
   }).on('error', (err) => console.error('ERR:REDIS:', err));
   redisClient.on('connect', () => log('redis connected'));
   await redisClient.connect();
