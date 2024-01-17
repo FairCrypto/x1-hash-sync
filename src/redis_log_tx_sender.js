@@ -1,9 +1,8 @@
 import dotenv from "dotenv";
 import debug from "debug";
 import {commandOptions, createClient} from "redis";
-import BlockStorage from "../abi/BlockStorage.json" assert { type: "json" };
+import BlockStorage from "../abi/BlockStorage_v2.json" assert { type: "json" };
 import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
-import {processHashBatch, processNewHashBatch} from "./processNewHashBatch.js";
 import {processNewLogBatch} from "./processLogBatch.js";
 
 const [, , ...args] = process.argv;
