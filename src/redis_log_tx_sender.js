@@ -48,14 +48,14 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
     process.exit(0);
   })
 
-  let lastBatchId = await redisClient.get('x1:lastBatchId');
-  log('last batch_id', lastBatchId);
+  let lastBatchId = await redisClient.get('x1:lastLogBatchId');
+  log('last log_batch_id', lastBatchId);
 
   while (true) {
     const data = await redisClient.xRead(
       // https://github.com/redis/node-redis/blob/master/docs/isolated-execution.md
       commandOptions({ isolated: true }),
-      { key: 'x1:batches', id: lastBatchId || '$' },
+      { key: 'x1:log_batches', id: lastBatchId || '$' },
       { BLOCK: 0, COUNT: 1 }
     );
     const msg = data[0]?.messages?.[0]?.message;
@@ -67,7 +67,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
     const r = await processNewLogBatch(message.hashes, message.type, contract);
     log(message.type === '0' ? 'hashes' : 'xunis','sent', r);
     if (r === 'OK') {
-      await redisClient.set('x1:lastBatchId', lastBatchId);
+      await redisClient.set('x1:lastLogBatchId', lastBatchId);
     }
 
   }
