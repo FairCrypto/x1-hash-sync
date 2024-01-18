@@ -85,7 +85,7 @@ export const processHashBatch = async (hashes, contract, address) => {
     const res = await contract.bulkStoreRecordBytes(params[0], params[2], {
       gasLimit: gas * 120n / 100n,
       // maxFeePerGas: 10_000_000_000n,
-      maxPriorityFeePerGas: 1_000_000_000n,
+      // maxPriorityFeePerGas: 1_000_000_000n,
     });
     const result = await res.wait(1);
     return result?.status === 1 ? 'OK' : 'FAIL';
