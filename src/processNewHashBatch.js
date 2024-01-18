@@ -55,7 +55,7 @@ export const processNewHashBatch = async (hashes, contract) => {
     const result = await res.wait(1);
     return result?.status === 1 ? 'OK' : 'FAIL';
   } catch (e) {
-    log('ERR', e.message);
+    log('ERR', e);
     // throw e;
   } finally {
     params.forEach(arr => arr.splice(0, arr.length));
