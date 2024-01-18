@@ -5,27 +5,32 @@ import debug from "debug";
 const log = debug('hash-sync', {colors: false});
 
 const prepareBytes = (hash) => {
-  const {hash_to_verify, key, account, block_id} = hash;
-  const [, type, v0, mtp, s64, ] = hash_to_verify.split('$');
-  // log(type, v0, mtp, 's=', s64, 'h=', hash64);
-  assert.equal(type, 'argon2id');
-  const v = v0.split('=')[1];
-  assert.equal(v, '19');
-  const [m0, t0, p0] = mtp.split(',');
-  const m = m0.split('=')[1];
-  const t = t0.split('=')[1];
-  const c = p0.split('=')[1];
-  let s = Buffer.from(s64, 'base64');
-  let k = Buffer.from(key, 'hex').slice(0, 32);
-  const accountNormalized = getAddress(account);
-  assert.ok(isAddress(accountNormalized), 'account is not valid: ' + accountNormalized);
-  const bytes = solidityPacked(
-    ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
-    [c, m, t, v, k, s]);
-  hash = null;
-  s = null;
-  k = null;
-  return [accountNormalized, block_id, bytes];
+  try {
+    const {hash_to_verify, key, account, block_id} = hash;
+    const [, type, v0, mtp, s64,] = hash_to_verify.split('$');
+    // log(type, v0, mtp, 's=', s64, 'h=', hash64);
+    assert.equal(type, 'argon2id');
+    const v = v0.split('=')[1];
+    assert.equal(v, '19');
+    const [m0, t0, p0] = mtp.split(',');
+    const m = m0.split('=')[1];
+    const t = t0.split('=')[1];
+    const c = p0.split('=')[1];
+    let s = Buffer.from(s64, 'base64');
+    let k = Buffer.from(key, 'hex').slice(0, 32);
+    const accountNormalized = getAddress(account);
+    assert.ok(isAddress(accountNormalized), 'account is not valid: ' + accountNormalized);
+    const bytes = solidityPacked(
+      ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
+      [c, m, t, v, k, s]);
+    hash = null;
+    s = null;
+    k = null;
+    return [accountNormalized, block_id, bytes];
+  } catch (e) {
+    log(e)
+    return null;
+  }
 }
 
 export const processNewHashBatch = async (hashes, contract) => {
