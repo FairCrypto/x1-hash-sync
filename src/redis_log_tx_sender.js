@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 import debug from "debug";
 import {commandOptions, createClient} from "redis";
-import BlockStorage from "../abi/BlockStorage_v2.json" assert { type: "json" };
-import {Contract, JsonRpcProvider, NonceManager, Wallet} from "ethers";
+import BlockStorage from "../abi/BlockStorage_v3.json" assert { type: "json" };
+import {Contract, JsonRpcProvider, Wallet} from "ethers";
 import {processNewLogBatch} from "./processLogBatch.js";
 
 const [, , ...args] = process.argv;
@@ -31,7 +31,6 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 
   const provider = new JsonRpcProvider(RPC_URL, Number(NETWORK_ID));
   const wallet = new Wallet(process.env.PK, provider);
-  // const nonceManager = new NonceManager(wallet);
   const contract = new Contract(CONTRACT_ADDRESS, abi, wallet);
 
   const redisClient = await createClient({

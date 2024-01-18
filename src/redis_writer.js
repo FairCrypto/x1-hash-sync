@@ -51,6 +51,8 @@ const telemetry = async (redisClient) => {
   }
 }
 
+const timestamp = () => Math.floor(Date.now() / 1_000);
+
 // entry point
 (async () => {
 
@@ -90,7 +92,7 @@ const telemetry = async (redisClient) => {
             const isNew = await redisClient.sAdd('x1:keys', record.key);
             if (isNew) {
               log('data', record.key, record.type);
-              await redisClient.xAdd('x1:hashes', '*', record);
+              await redisClient.xAdd('x1:hashes', '*', { ...record, ts: timestamp() });
               if (record.type === '0') {
                 await telemetry(redisClient);
               }

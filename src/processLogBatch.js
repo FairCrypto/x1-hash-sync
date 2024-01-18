@@ -75,7 +75,7 @@ export const processNewLogBatch = async (hashes, type, contract) => {
   try {
     const zippedData = hashes
       .map(hash => {
-        const {hash_to_verify, key, account, block_id} = hash;
+        const {hash_to_verify, key, account, block_id, ts} = hash;
         const [, type, v0, mtp, s64, hash64] = hash_to_verify.split('$');
         assert.equal(type, 'argon2id');
         const v = v0.split('=')[1];
@@ -97,23 +97,25 @@ export const processNewLogBatch = async (hashes, type, contract) => {
         const bb = solidityPacked(
           ["uint8", "uint32", "uint8", "uint8", "bytes32", "bytes"],
           [c, m, t, v, k, s]);
-        return [accountNormalized, block_id, bb];
+        return [accountNormalized, ts, bb];
       }).filter(Boolean);
     if (!zippedData.length) {
       log( 'no conforming records; skipping');
       // await new Promise(resolve => setTimeout(resolve, 1000));
       return 'SKIP';
     }
-    const [addresses, , bytes] = unzip3(zippedData);
+    const [addresses, ts , bytes] = unzip3(zippedData);
 
     const blob = solidityPacked(["address[]", "bytes[]"], [addresses, bytes]);
     const deflated = pako.deflate(blob);
+    const tsStart = ts[0];
+    const tsEnd = ts[ts.length - 1];
 
     const gas = await contract.logStoreNewRecords.estimateGas(
-      type, bytes.length, deflated
+      type, tsStart, tsEnd, bytes.length, deflated
     );
     const res = await contract.logStoreNewRecords(
-      type, bytes.length, deflated, { gasLimit: gas * 120n / 100n }
+      type, tsStart, tsEnd, bytes.length, deflated, { gasLimit: gas * 120n / 100n }
     );
     const result = await res.wait(1);
     return result?.status === 1 ? 'OK' : 'FAIL';
