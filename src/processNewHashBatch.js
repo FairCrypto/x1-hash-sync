@@ -38,6 +38,7 @@ export const processNewHashBatch = async (hashes, contract) => {
   let params;
   try {
     params = hashes.map(prepareBytes)
+      .filter(Boolean)
       .reduce(
         (acc, [value1, value2, value3]) => {
           acc[0].push(value1);
@@ -73,6 +74,7 @@ export const processHashBatch = async (hashes, contract, address) => {
   let params;
   try {
     params = hashes.map(prepareBytes)
+      .filter(Boolean)
       .reduce(
         (acc, [value1, value2, value3]) => {
           acc[0].push(value1);
@@ -95,7 +97,7 @@ export const processHashBatch = async (hashes, contract, address) => {
     const result = await res.wait(1);
     return result?.status === 1 ? 'OK' : 'FAIL';
   } catch (e) {
-    log('ERR', address, e);
+    log('ERR', e);
     // throw e;
   } finally {
     params.forEach(arr => arr.splice(0, arr.length));
