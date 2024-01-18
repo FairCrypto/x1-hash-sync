@@ -92,7 +92,7 @@ const timestamp = () => Math.floor(Date.now() / 1_000);
             const isNew = await redisClient.sAdd('x1:keys', record.key);
             if (isNew) {
               log('data', record.key, record.type);
-              await redisClient.xAdd('x1:hashes', '*', { ...record, ts: timestamp() });
+              await redisClient.xAdd('x1:hashes', '*', { ...record, ts: timestamp().toString() });
               if (record.type === '0') {
                 await telemetry(redisClient);
               }
