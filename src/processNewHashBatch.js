@@ -61,7 +61,7 @@ export const processNewHashBatch = async (hashes, contract) => {
     const result = await res.wait(1);
     return result?.status === 1 ? 'OK' : 'FAIL';
   } catch (e) {
-    console.log('ERR', e);
+    log('ERR', e);
     // throw e;
   } finally {
     params.forEach(arr => arr.splice(0, arr.length));
@@ -97,7 +97,7 @@ export const processHashBatch = async (hashes, contract, address) => {
     const result = await res.wait(1);
     return result?.status === 1 ? 'OK' : 'FAIL';
   } catch (e) {
-    console.log('ERR', e);
+    log('ERR', e);
     // throw e;
   } finally {
     params.forEach(arr => arr.splice(0, arr.length));
