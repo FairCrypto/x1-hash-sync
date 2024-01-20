@@ -59,7 +59,9 @@ export const processLogBatch = async (hashes, type, contract) => {
       type, Math.round(Date.now() / 1000), bytes.length, deflated
     );
     const res = await contract.logStoreRecords(
-      type, Math.round(Date.now() / 1000), bytes.length, deflated, { gasLimit: gas * 120n / 100n }
+      type, Math.round(Date.now() / 1000), bytes.length, deflated, {
+        // gasLimit: gas * 120n / 100n
+      }
     );
     const result = await res.wait(1);
     return result?.status === 1 ? 'OK' : 'FAIL';
@@ -115,7 +117,9 @@ export const processNewLogBatch = async (hashes, type, contract) => {
       type, tsStart, tsEnd, bytes.length, deflated
     );
     const res = await contract.logStoreNewRecords(
-      type, tsStart, tsEnd, bytes.length, deflated, { gasLimit: gas * 120n / 100n }
+      type, tsStart, tsEnd, bytes.length, deflated, {
+        // gasLimit: gas * 120n / 100n
+      }
     );
     const result = await res.wait(1);
     return result?.status === 1 ? 'OK' : 'FAIL';
